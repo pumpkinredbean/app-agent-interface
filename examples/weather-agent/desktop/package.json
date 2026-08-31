@@ -20,7 +20,7 @@
   "dependencies": {
     "@pumpkinredbean/app-agent-android-ui": "file:../../../harness/android-ui",
     "@anthropic-ai/claude-agent-sdk": "0.3.251",
-    "ai": "6.0.272",
+    "ai": "7.0.83",
     "ai-sdk-provider-codex-cli": "1.3.1",
     "ai-sdk-provider-github": "1.0.0",
     "ajv": "8.20.0",
