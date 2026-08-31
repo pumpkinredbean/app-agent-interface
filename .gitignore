@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+.gradle/
+**/build/
+local.properties
+*.apk
+.next/
+dist/
+coverage/
+*.log

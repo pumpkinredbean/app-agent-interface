@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:app-agent-interface:schema:v1",
+  "title": "App Agent Interface Protocol v1",
+  "oneOf": [
+    { "$ref": "#/$defs/toolsList" },
+    { "$ref": "#/$defs/toolCall" },
+    { "$ref": "#/$defs/toolResult" },
+    { "$ref": "#/$defs/protocolError" }
+  ],
+  "$defs": {
+    "toolSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "inputSchema"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputSchema": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "object" }
+          }
+        }
+      }
+    },
+    "toolsList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "type", "tools"],
+      "properties": {
+        "protocol": { "const": "app-agent/1" },
+        "type": { "const": "tools.list" },
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/toolSpec" }
+        }
+      }
+    },
+    "toolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "type", "id", "name", "input"],
+      "properties": {
+        "protocol": { "const": "app-agent/1" },
+        "type": { "const": "tool.call" },
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "input": { "type": "object" }
+      }
+    },
+    "toolError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "toolResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "type", "id", "ok"],
+      "properties": {
+        "protocol": { "const": "app-agent/1" },
+        "type": { "const": "tool.result" },
+        "id": { "type": "string", "minLength": 1 },
+        "ok": { "type": "boolean" },
+        "output": true,
+        "error": { "$ref": "#/$defs/toolError" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "ok": { "const": true } }, "required": ["ok"] },
+          "then": {
+            "required": ["output"],
+            "properties": { "output": true, "error": false }
+          },
+          "else": {
+            "required": ["error"],
+            "properties": { "output": false, "error": true }
+          }
+        }
+      ]
+    },
+    "protocolError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "type", "error"],
+      "properties": {
+        "protocol": { "const": "app-agent/1" },
+        "type": { "const": "protocol.error" },
+        "error": { "$ref": "#/$defs/toolError" }
+      }
+    }
+  }
+}

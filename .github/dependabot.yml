@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: gradle
+    directory: /sdk
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: gradle
+    directory: /examples/weather-agent/android
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: gradle
+    directory: /drivers/android-uiautomator2
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /examples/weather-agent/desktop
+    schedule:
+      interval: weekly

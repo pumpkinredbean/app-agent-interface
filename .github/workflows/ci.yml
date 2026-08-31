@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kotlin-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Test Kotlin SDK
+        working-directory: sdk
+        run: ./gradlew clean test --no-daemon
+
+  desktop-harness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: examples/weather-agent/desktop/package-lock.json
+
+      - name: Install dependencies
+        working-directory: examples/weather-agent/desktop
+        run: npm ci
+
+      - name: Test desktop harness
+        working-directory: examples/weather-agent/desktop
+        run: npm test
+
+  android-builds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build weather example
+        working-directory: examples/weather-agent/android
+        run: ./gradlew :app:assembleDebug --no-daemon
+
+      - name: Build UiAutomator2 companion
+        run: >-
+          examples/weather-agent/android/gradlew
+          -p drivers/android-uiautomator2
+          :host:assembleDebug
+          :host:assembleDebugAndroidTest
+          --no-daemon

@@ -1,0 +1,64 @@
+name: Publish Kotlin SDK
+
+on:
+  push:
+    tags:
+      - "sdk-v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Maven version to publish, for example 0.1.0"
+        required: true
+        type: string
+
+concurrency:
+  group: publish-sdk-${{ github.ref }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve SDK version
+        shell: bash
+        env:
+          MANUAL_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            VERSION="$MANUAL_VERSION"
+          else
+            VERSION="${GITHUB_REF_NAME#sdk-v}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid SDK version: $VERSION" >&2
+            exit 1
+          fi
+
+          echo "SDK_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Test and publish SDK
+        working-directory: sdk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew clean test \
+            :app-agent-runtime:publishMavenPublicationToGitHubPackagesRepository \
+            :app-agent-transport-loopback:publishMavenPublicationToGitHubPackagesRepository \
+            --no-daemon

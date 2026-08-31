@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Desktop agent connected to application-scoped Android weather tools" />
+    <title>Weather Agent Example</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Agent settings">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">W</div>
+          <div>
+            <strong>WEATHER DEMO</strong>
+            <span>APP AGENT</span>
+          </div>
+        </div>
+
+        <button class="new-chat" id="new-chat" type="button">
+          <span aria-hidden="true">＋</span>
+          New conversation
+          <kbd>⌘ K</kbd>
+        </button>
+
+        <div class="sidebar-section">
+          <p class="section-label">AGENT PROVIDER</p>
+          <label class="provider-field" for="provider">
+            <span class="provider-symbol" aria-hidden="true">AI</span>
+            <span class="provider-copy">
+              <strong id="provider-name">Codex</strong>
+              <small id="provider-detail">Uses your ChatGPT subscription</small>
+            </span>
+            <select id="provider" aria-label="Select agent provider">
+              <option value="codex">Codex</option>
+              <option value="copilot">GitHub Copilot</option>
+              <option value="claude">Claude</option>
+            </select>
+          </label>
+          <label class="model-field" for="model">
+            <span>Model</span>
+            <input id="model" list="model-options" type="text" autocomplete="off" placeholder="Provider default" />
+            <datalist id="model-options"></datalist>
+          </label>
+        </div>
+
+        <div class="sidebar-section connection-section">
+          <p class="section-label">CONNECTION</p>
+          <div class="connection-item">
+            <span class="status-dot" id="desktop-dot"></span>
+            <div>
+              <strong>Desktop Agent</strong>
+              <small id="desktop-status">Starting</small>
+            </div>
+          </div>
+          <div class="connection-line" aria-hidden="true"></div>
+          <div class="connection-item">
+            <span class="status-dot" id="android-dot"></span>
+            <div>
+              <strong>Android App</strong>
+              <small id="android-status">Checking connection</small>
+            </div>
+          </div>
+          <div class="connection-line" aria-hidden="true"></div>
+          <div class="connection-item">
+            <span class="status-dot" id="ui-driver-dot"></span>
+            <div>
+              <strong>UiAutomator2 Driver</strong>
+              <small id="ui-driver-status">Checking optional UI tools</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section scope-section">
+          <p class="section-label">APP TOOL SCOPE</p>
+          <div class="scope-card">
+            <div class="scope-heading">
+              <span class="scope-icon" aria-hidden="true">↗</span>
+              <strong>Weather app capabilities</strong>
+            </div>
+            <ul>
+              <li>Current weather and daily forecasts</li>
+              <li>Compare two to four locations</li>
+              <li>Create, list, and delete local alerts</li>
+            </ul>
+            <span class="read-only" id="capability-count">APP TOOLS · UI FALLBACK</span>
+          </div>
+        </div>
+
+        <p class="local-note"><span aria-hidden="true">⌁</span> Local ADB connection · no external exposure</p>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="mobile-brand">
+            <span class="brand-mark">W</span>
+            <strong>Weather Agent Example</strong>
+          </div>
+          <div class="agent-presence">
+            <span class="status-dot online"></span>
+            <span id="header-provider">Codex agent</span>
+          </div>
+        </header>
+
+        <section class="conversation" id="conversation" aria-label="Agent conversation">
+          <div class="welcome" id="welcome">
+            <div class="agent-orb" aria-hidden="true"><span>W</span></div>
+            <p class="eyebrow">ANDROID WEATHER APP AGENT</p>
+            <h1>Ask about weather.<br />Act through the mobile app.</h1>
+            <p class="welcome-copy">
+              The agent answers directly when it can and calls application-scoped Android tools only when data or an action is needed.
+            </p>
+            <div class="suggestions" aria-label="Suggested questions">
+              <button type="button" data-prompt="Which application tools can you use, and when would you use each one?">
+                <span>Show available app tools</span><span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" data-prompt="What is the weather in Seoul right now?">
+                <span>Current weather in Seoul</span><span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" data-prompt="Compare the current weather in Seoul and Tokyo.">
+                <span>Compare Seoul and Tokyo</span><span aria-hidden="true">↗</span>
+              </button>
+              <button id="alert-suggestion" type="button">
+                <span>Create a rain alert for tomorrow</span><span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+          <div class="messages" id="messages" aria-live="polite"></div>
+        </section>
+
+        <div class="composer-wrap">
+          <form class="composer" id="chat-form">
+            <textarea
+              id="message-input"
+              rows="1"
+              maxlength="2000"
+              placeholder="Ask the Weather Agent"
+              aria-label="Message to the agent"
+            ></textarea>
+            <div class="composer-actions">
+              <span class="composer-hint">Shift + Enter for a new line</span>
+              <button class="send-button" id="send-button" type="submit" aria-label="Send message">
+                <span aria-hidden="true">↑</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
