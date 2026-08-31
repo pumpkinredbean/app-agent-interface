@@ -1,6 +1,6 @@
 # Weather agent example
 
-A runnable example that integrates the domain-neutral [App Agent Interface Kotlin SDK](../../sdk/README.md) into an Android weather application. A custom desktop agent can call application-scoped tools over ADB, and an in-app caller executes the same registered handlers directly. This example is not MCP. It can optionally add generic, app-scoped UiAutomator2 tools as a fallback when no semantic application tool covers an interaction.
+A runnable example that integrates the domain-neutral [App Agent Interface Kotlin SDK](../../docs/sdk/kotlin-sdk.md) into an Android weather application. A custom TypeScript desktop agent calls application-scoped tools through `@pumpkinredbean/app-agent-client` over ADB, and an in-app caller executes the same registered handlers directly. This example is not MCP. It can optionally add generic, app-scoped UiAutomator2 tools as a fallback when no semantic application tool covers an interaction.
 
 Weather is only the sample domain. Tool names, descriptions, schemas, handlers, persistence, and approval policy belong to this application and are not predefined by the SDK.
 
@@ -65,10 +65,10 @@ This scheduler is intentionally small enough to audit in a sample. A production 
 
 ## SDK integration
 
-The Android project consumes `sdk/` as a composite build:
+The Android project consumes the repository root as a composite build:
 
 ```groovy
-includeBuild("../../../sdk")
+includeBuild("../../..")
 ```
 
 ```groovy
@@ -122,8 +122,9 @@ The sample omits a bearer token so the PoC connection is easy to inspect. A prod
 Node.js 22 or newer is required.
 
 ```bash
-cd examples/weather-agent/desktop
+# From the repository root
 npm ci
+cd examples/weather-agent/desktop
 npm run ui
 ```
 
@@ -193,10 +194,8 @@ Before shipping a commercial product, configure the appropriate commercial or se
 ## Tests
 
 ```bash
-cd examples/weather-agent/desktop
+# From the repository root
 npm test
-
-cd ../../../sdk
 ./gradlew test
 ```
 

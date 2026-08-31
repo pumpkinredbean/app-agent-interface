@@ -1,6 +1,6 @@
 # Migrating an inline application PoC to the SDK
 
-The inline implementation was converted into the runnable example under [`examples/weather-agent`](../../examples/weather-agent/README.md). Its Android application consumes the Kotlin runtime and loopback transport from `sdk/` as real dependencies. Weather remains example-owned behavior and is not part of the SDK API.
+The inline implementation was converted into the runnable example under [`examples/weather-agent`](../../examples/weather-agent/README.md). Its Android application consumes the Kotlin runtime and loopback transport from the repository-root composite build as real dependencies. Weather remains example-owned behavior and is not part of the SDK API.
 
 ## Tool specification
 

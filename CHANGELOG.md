@@ -5,5 +5,7 @@ All notable changes will be documented in this file. The project follows [Semant
 ## Unreleased
 
 - Initial public release of the Kotlin runtime and loopback transport.
-- Generic Android UiAutomator2 companion and semantic UI harness.
-- Weather agent example with desktop and in-app execution paths.
+- Added the typed `@pumpkinredbean/app-agent-client` protocol client.
+- Converted the generic Android UiAutomator2 package to strict TypeScript and separated bridge, hierarchy, and tool layers.
+- Converted the Weather desktop agent, provider adapters, CLI, and web server to strict TypeScript.
+- Reorganized the repository around publishable packages with one npm workspace and a language-neutral protocol root.

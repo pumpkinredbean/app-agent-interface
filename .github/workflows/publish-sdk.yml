@@ -54,7 +54,6 @@ jobs:
           echo "SDK_VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Test and publish SDK
-        working-directory: sdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

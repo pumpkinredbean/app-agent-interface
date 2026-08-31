@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/app-agent-client" },
+    { "path": "packages/app-agent-android-ui" },
+    { "path": "examples/weather-agent/desktop" }
+  ]
+}

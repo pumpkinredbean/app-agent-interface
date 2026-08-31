@@ -1,6 +1,6 @@
 # `app-agent/1` protocol
 
-The protocol is an application communication contract independent of any model provider. The canonical JSON Schema is [`sdk/protocol/app-agent-v1.schema.json`](../../sdk/protocol/app-agent-v1.schema.json).
+The protocol is an application communication contract independent of any model provider. The canonical JSON Schema is [`protocol/app-agent-v1.schema.json`](../../protocol/app-agent-v1.schema.json).
 
 ## Tool manifest
 

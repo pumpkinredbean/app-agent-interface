@@ -19,14 +19,14 @@ App Agent Interface is experimental and welcomes focused fixes, documentation im
 Run the relevant checks before opening a pull request:
 
 ```bash
-cd sdk
 ./gradlew test
 
-cd ../examples/weather-agent/desktop
 npm ci
+npm run lint
 npm test
+npm run pack:check
 
-cd ../android
+cd examples/weather-agent/android
 ./gradlew :app:assembleDebug
 ```
 

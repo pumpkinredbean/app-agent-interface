@@ -105,7 +105,7 @@ Password node values are masked in observations. Text values and ordered multi-t
 
 The current driver is an Android instrumentation companion for an ADB-connected device or emulator. It is not linked into the target APK and is not a production remote-control service.
 
-The desktop projector/client is packaged under `harness/android-ui` as `@pumpkinredbean/app-agent-android-ui`; the example consumes it through a local `file:` dependency. Automated npm publication is not configured yet.
+The desktop projector/client is the TypeScript workspace package `packages/app-agent-android-ui`, published as `@pumpkinredbean/app-agent-android-ui`. It depends on `@pumpkinredbean/app-agent-client` for the shared protocol contract and ToolCall errors. Automated npm publication is not configured yet.
 
 From the weather example desktop directory:
 

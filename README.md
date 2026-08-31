@@ -1,18 +1,18 @@
-# App Agent Interface SDK
+# App Agent Interface
 
-A provider-neutral Kotlin SDK for exposing application-scoped capabilities to desktop and in-app AI agents.
+Provider-neutral Kotlin and TypeScript SDKs for turning an existing application into an application that agents can safely use.
 
 [![CI](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml/badge.svg)](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Applications define their own tools. The SDK registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. It does not expose the Android UI or operating system to the model.
+Applications define their own tools. The Kotlin runtime registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. The TypeScript client discovers and calls them from desktop, remote, or other agent harnesses. Optional Android UI automation is a separate app-scoped fallback rather than the primary interface.
 
 > Status: experimental. The public API and wire protocol may change before `1.0.0`.
 
 ## Design principles
 
 - This is a custom application-agent protocol, not MCP.
-- The SDK contains no finance, commerce, or other domain-specific tools.
+- The packages contain no finance, commerce, weather, or other domain-specific tools.
 - Every application defines its own `name`, `description`, `inputSchema`, and handler.
 - Desktop and in-app agents can share the same mobile `ToolRuntime`.
 - Application credentials remain inside the mobile handler and are never sent to the model.
@@ -22,12 +22,13 @@ Applications define their own tools. The SDK registers, validates, approves, and
 ## Repository layout
 
 ```text
-sdk/
+protocol/                            Canonical, language-neutral app-agent/1 JSON Schema
+packages/
   app-agent-runtime/                 Kotlin registry, validation, approval, and execution
-  app-agent-transport-loopback/      Loopback HTTP transport for Android/JVM and ADB
-  protocol/                          Canonical app-agent/1 JSON Schema
+  app-agent-transport-loopback/      Kotlin loopback HTTP transport for Android/JVM and ADB
+  app-agent-client/                  Typed TypeScript protocol client
+  app-agent-android-ui/              Typed TypeScript Android UI fallback tools
 drivers/android-uiautomator2/        Optional generic instrumentation companion
-harness/android-ui/                  Reusable desktop semantic projector and UI ToolSpecs
 docs/sdk/                            Architecture and integration documentation
 examples/weather-agent/              Android weather and desktop agent example
 ```
@@ -46,23 +47,32 @@ Handlers, approval policy, authentication state, transport settings, and call ID
 
 ## Start here
 
-- [Kotlin SDK](sdk/README.md)
+- [Kotlin SDK](docs/sdk/kotlin-sdk.md)
+- [TypeScript client](packages/app-agent-client/README.md)
+- [TypeScript package architecture](docs/sdk/typescript.md)
 - [Architecture](docs/sdk/architecture.md)
 - [Tool authoring](docs/sdk/tool-authoring.md)
 - [Android integration](docs/sdk/android-integration.md)
 - [Protocol](docs/sdk/protocol.md)
 - [Android UI automation fallback](docs/sdk/android-ui-automation.md)
-- [Android UI harness package](harness/android-ui/README.md)
+- [Android UI package](packages/app-agent-android-ui/README.md)
 - [Distribution](docs/sdk/distribution.md)
 - [Weather agent example](examples/weather-agent/README.md)
 
 ## Distribution
 
-The repository includes a GitHub Packages publishing workflow. Pushing a tag such as `sdk-v0.1.0` publishes both modules:
+The repository includes a GitHub Packages publishing workflow. Pushing a tag such as `sdk-v0.1.0` publishes both Kotlin modules:
 
 ```text
 io.github.pumpkinredbean:app-agent-runtime:0.1.0
 io.github.pumpkinredbean:app-agent-transport-loopback:0.1.0
+```
+
+The npm workspaces build publication-ready ESM packages with declarations:
+
+```text
+@pumpkinredbean/app-agent-client
+@pumpkinredbean/app-agent-android-ui
 ```
 
 See [SDK distribution and installation](docs/sdk/distribution.md) for credentials, release steps, and consumer configuration.

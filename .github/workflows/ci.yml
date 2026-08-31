@@ -31,10 +31,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Test Kotlin SDK
-        working-directory: sdk
         run: ./gradlew clean test --no-daemon
 
-  desktop-harness:
+  typescript:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -45,15 +44,19 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: examples/weather-agent/desktop/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: examples/weather-agent/desktop
         run: npm ci
 
-      - name: Test desktop harness
-        working-directory: examples/weather-agent/desktop
+      - name: Lint TypeScript
+        run: npm run lint
+
+      - name: Test TypeScript packages and example
         run: npm test
+
+      - name: Verify npm package contents
+        run: npm run pack:check
 
   android-builds:
     runs-on: ubuntu-latest

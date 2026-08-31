@@ -9,7 +9,7 @@ io.github.pumpkinredbean:app-agent-runtime:<version>
 io.github.pumpkinredbean:app-agent-transport-loopback:<version>
 ```
 
-Gradle publishing is configured in `sdk/build.gradle.kts`. Automation lives in `.github/workflows/publish-sdk.yml`.
+Gradle publishing is configured in the repository-root `build.gradle.kts`. Automation lives in `.github/workflows/publish-sdk.yml`.
 
 On GitHub Actions, the build reads `GITHUB_REPOSITORY`, `GITHUB_ACTOR`, and the automatically issued `GITHUB_TOKEN`. No separate publishing PAT is required. The workflow grants `contents: read` and `packages: write`, as required by the [official Gradle publishing guide](https://docs.github.com/en/actions/tutorials/publish-packages/publish-java-packages-with-gradle).
 
@@ -39,7 +39,6 @@ gpr.key=CLASSIC_PERSONAL_ACCESS_TOKEN
 The classic PAT needs `write:packages`, and its account must be able to access the target repository. An organization using SAML SSO may also require explicit organization authorization for the token.
 
 ```bash
-cd sdk
 ./gradlew -PsdkVersion=0.1.0 clean test publish
 ```
 
@@ -98,7 +97,7 @@ A composite build is the fastest option when changing the SDK and application to
 
 ```kotlin
 // consuming-project/settings.gradle.kts
-includeBuild("../app-agent-interface/sdk")
+includeBuild("../app-agent-interface")
 ```
 
 The weather agent example in this repository uses this approach.
