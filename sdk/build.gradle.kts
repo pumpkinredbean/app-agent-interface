@@ -2,7 +2,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
-    kotlin("jvm") version "2.2.10" apply false
+    kotlin("jvm") version "2.4.10" apply false
 }
 
 val sdkGroup = providers.gradleProperty("sdkGroup").getOrElse("io.github.pumpkinredbean")
