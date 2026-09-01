@@ -3,6 +3,9 @@ import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     kotlin("jvm") version "2.2.10" apply false
+    id("com.android.library") version "9.3.2" apply false
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.10" apply false
+    id("io.github.takahirom.roborazzi") version "1.73.0" apply false
 }
 
 val sdkGroup = providers.gradleProperty("sdkGroup").getOrElse("io.github.pumpkinredbean")

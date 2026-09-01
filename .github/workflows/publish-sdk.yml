@@ -60,4 +60,5 @@ jobs:
           ./gradlew clean test \
             :app-agent-runtime:publishMavenPublicationToGitHubPackagesRepository \
             :app-agent-transport-loopback:publishMavenPublicationToGitHubPackagesRepository \
+            :app-agent-ui-compose:publishReleasePublicationToGitHubPackagesRepository \
             --no-daemon

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_agent_approval_request_label">APP AGENT REQUEST</string>
+    <string name="app_agent_approval_request_supporting_text">Action needs your approval</string>
+    <string name="app_agent_approval_title">Allow this action?</string>
+    <string name="app_agent_approval_tool_label">TOOL</string>
+    <string name="app_agent_approval_once_disclaimer">The app will run this tool once after you allow it.</string>
+    <string name="app_agent_approval_deny">Deny</string>
+    <string name="app_agent_approval_allow_once">Allow once</string>
+</resources>

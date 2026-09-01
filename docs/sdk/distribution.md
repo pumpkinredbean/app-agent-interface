@@ -2,27 +2,28 @@
 
 ## Current registry: GitHub Packages
 
-The publishing workflow uploads both modules to the Maven registry associated with the GitHub repository that contains the SDK source:
+The publishing workflow uploads the runtime, transport, and optional Compose UI artifacts to the Maven registry associated with the GitHub repository that contains the SDK source:
 
 ```text
 io.github.pumpkinredbean:app-agent-runtime:<version>
 io.github.pumpkinredbean:app-agent-transport-loopback:<version>
+io.github.pumpkinredbean:app-agent-ui-compose:<version>
 ```
 
 Gradle publishing is configured in the repository-root `build.gradle.kts`. Automation lives in `.github/workflows/publish-sdk.yml`.
 
 On GitHub Actions, the build reads `GITHUB_REPOSITORY`, `GITHUB_ACTOR`, and the automatically issued `GITHUB_TOKEN`. No separate publishing PAT is required. The workflow grants `contents: read` and `packages: write`, as required by the [official Gradle publishing guide](https://docs.github.com/en/actions/tutorials/publish-packages/publish-java-packages-with-gradle).
 
-## Publish the first release
+## Publish a release
 
 Push the repository to GitHub, then push a version tag:
 
 ```bash
-git tag sdk-v0.1.0
-git push origin sdk-v0.1.0
+git tag sdk-v0.1.1
+git push origin sdk-v0.1.1
 ```
 
-The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.1.0`.
+The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.1.1`.
 
 Do not republish an existing release version. Use a new version such as `0.1.1` for every changed release.
 
@@ -81,8 +82,10 @@ Application module `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:0.1.0")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.1.0")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:0.1.1")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.1.1")
+    // Optional:
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.1.1")
 }
 ```
 

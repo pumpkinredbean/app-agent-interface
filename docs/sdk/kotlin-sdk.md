@@ -10,6 +10,7 @@ This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or
 |---|---|
 | `app-agent-runtime` | `ToolSpec`, registry, input validation, approval policy, execution, and JSON codec |
 | `app-agent-transport-loopback` | Android/JVM loopback HTTP server and ADB-forwardable endpoints |
+| `app-agent-ui-compose` | Optional Material 3 dialog for application-owned tool approval |
 
 The default local version is `0.1.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
 
@@ -29,7 +30,7 @@ Handlers, mobile approval, authentication state, transport settings, and call ID
 
 ## Install from GitHub Packages
 
-Pushing a tag such as `sdk-v0.1.0` publishes both modules to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
+Pushing a tag such as `sdk-v0.1.1` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
 
 ```kotlin
 // consuming-project/settings.gradle.kts
@@ -52,8 +53,10 @@ dependencyResolutionManagement {
 ```kotlin
 // consuming-project/build.gradle.kts
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:0.1.0")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.1.0")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:0.1.1")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.1.1")
+    // Optional:
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.1.1")
 }
 ```
 
@@ -191,6 +194,18 @@ ToolRuntime runtime = ToolRuntime.withBlockingApproval(
     request -> approvalCoordinator.awaitDecision(request)
 );
 ```
+
+Compose applications can render the current request with the optional UI artifact:
+
+```kotlin
+ToolApprovalDialog(
+    request = request,
+    onApprove = { approvalCoordinator.resolve(request.call.id, true) },
+    onDeny = { approvalCoordinator.resolve(request.call.id, false) },
+)
+```
+
+Dismissal is denial. Static approval labels and button text are SDK-owned Android string resources. Dynamic content is derived only from the app-registered `ToolSpec.description` and the actual `ToolCall.name` and `ToolCall.input`; the dialog does not accept model-authored explanatory prose or a separate presentation payload.
 
 ## Endpoints
 

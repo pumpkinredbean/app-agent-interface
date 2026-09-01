@@ -30,8 +30,8 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Test Kotlin SDK
-        run: ./gradlew clean test --no-daemon
+      - name: Test Kotlin and Compose SDKs
+        run: ./gradlew clean test :app-agent-ui-compose:assembleRelease --no-daemon
 
   typescript:
     runs-on: ubuntu-latest

@@ -4,8 +4,15 @@ All notable changes will be documented in this file. The project follows [Semant
 
 ## Unreleased
 
-- Initial public release of the Kotlin runtime and loopback transport.
 - Added the typed `@pumpkinredbean/app-agent-client` protocol client.
 - Converted the generic Android UiAutomator2 package to strict TypeScript and separated bridge, hierarchy, and tool layers.
 - Converted the Weather desktop agent, provider adapters, CLI, and web server to strict TypeScript.
 - Reorganized the repository around publishable packages with one npm workspace and a language-neutral protocol root.
+
+## 0.1.1 - 2026-09-01
+
+- Added the optional `app-agent-ui-compose` Material 3 approval dialog and Roborazzi preview coverage.
+
+## 0.1.0
+
+- Initial public release of the Kotlin runtime and loopback transport.
