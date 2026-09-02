@@ -1,5 +1,6 @@
 plugins {
     id "com.android.application"
+    id "org.jetbrains.kotlin.plugin.compose"
 }
 
 android {
@@ -24,9 +25,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    buildFeatures {
+        compose true
+    }
 }
 
 dependencies {
-    implementation "io.github.pumpkinredbean:app-agent-runtime:0.1.0-SNAPSHOT"
-    implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.1.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-runtime:0.2.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.2.0-SNAPSHOT"
+    implementation "androidx.activity:activity-compose:1.10.1"
+    implementation "androidx.compose.material3:material3:1.3.2"
 }

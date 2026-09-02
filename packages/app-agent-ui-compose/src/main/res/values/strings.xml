@@ -4,7 +4,19 @@
     <string name="app_agent_approval_request_supporting_text">Action needs your approval</string>
     <string name="app_agent_approval_title">Allow this action?</string>
     <string name="app_agent_approval_tool_label">TOOL</string>
+    <plurals name="app_agent_approval_waiting_count">
+        <item quantity="one">%1$d more request waiting</item>
+        <item quantity="other">%1$d more requests waiting</item>
+    </plurals>
+    <string name="app_agent_approval_timeout">Auto-denies in %1$s</string>
     <string name="app_agent_approval_once_disclaimer">The app will run this tool once after you allow it.</string>
     <string name="app_agent_approval_deny">Deny</string>
     <string name="app_agent_approval_allow_once">Allow once</string>
+    <string name="app_agent_approval_notification_channel">Agent approvals</string>
+    <string name="app_agent_approval_notification_channel_description">Requests waiting for approval inside this app</string>
+    <string name="app_agent_approval_notification_title">Approval required</string>
+    <plurals name="app_agent_approval_notification_content">
+        <item quantity="one">%1$d agent action is waiting. Open the app to review it.</item>
+        <item quantity="other">%1$d agent actions are waiting. Open the app to review them.</item>
+    </plurals>
 </resources>

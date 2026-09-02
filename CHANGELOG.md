@@ -4,6 +4,12 @@ All notable changes will be documented in this file. The project follows [Semant
 
 ## Unreleased
 
+## 0.2.0 - 2026-09-02
+
+- Added an application-scoped FIFO `ToolApprovalController` with configurable queue capacity and presentation-only decision timeout.
+- Added a lifecycle-aware Compose approval host, queue count, countdown, and privacy-safe background notification bridge.
+- Added distinct denied, timed-out, and unavailable approval results while retaining the Boolean approval adapters.
+- Documented secure-input boundaries, fail-closed process death, approval testing, and troubleshooting.
 - Added the typed `@pumpkinredbean/app-agent-client` protocol client.
 - Converted the generic Android UiAutomator2 package to strict TypeScript and separated bridge, hierarchy, and tool layers.
 - Converted the Weather desktop agent, provider adapters, CLI, and web server to strict TypeScript.

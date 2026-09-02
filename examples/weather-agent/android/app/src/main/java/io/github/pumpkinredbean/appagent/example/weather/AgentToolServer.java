@@ -3,8 +3,8 @@ package io.github.pumpkinredbean.appagent.example.weather;
 import android.content.Context;
 import android.util.Log;
 
-import io.github.pumpkinredbean.appagent.BlockingToolApprovalHandler;
 import io.github.pumpkinredbean.appagent.ToolApproval;
+import io.github.pumpkinredbean.appagent.ToolApprovalController;
 import io.github.pumpkinredbean.appagent.ToolCall;
 import io.github.pumpkinredbean.appagent.ToolExecutionException;
 import io.github.pumpkinredbean.appagent.ToolJson;
@@ -59,13 +59,13 @@ public final class AgentToolServer implements Closeable {
         Context context,
         int port,
         EventListener listener,
-        BlockingToolApprovalHandler approvalHandler,
+        ToolApprovalController approvalController,
         AlertMutationListener alertMutationListener
     ) {
         this.listener = listener;
         this.alertMutationListener = alertMutationListener;
         this.alertRepository = new WeatherAlertRepository(context.getApplicationContext());
-        this.runtime = ToolRuntime.withBlockingApproval(approvalHandler);
+        this.runtime = ToolRuntime.withDecisionApproval(approvalController);
         registerTools();
         this.server = new LoopbackToolServer(
             runtime,

@@ -57,6 +57,7 @@ dependencies {
 
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.material3:material3:1.3.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
     debugImplementation("androidx.compose.ui:ui-tooling-preview:1.8.3")
@@ -68,6 +69,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("io.github.takahirom.roborazzi:roborazzi:1.73.0")
     testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.73.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }
 
 afterEvaluate {

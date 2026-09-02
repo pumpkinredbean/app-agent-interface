@@ -9,6 +9,14 @@ public enum class ToolApproval {
     MOBILE,
 }
 
+/** The app-owned outcome of one approval request. */
+public enum class ToolApprovalDecision {
+    APPROVED,
+    DENIED,
+    TIMED_OUT,
+    UNAVAILABLE,
+}
+
 public data class ToolExecutionContext @JvmOverloads constructor(
     val callId: String,
     val attributes: Map<String, String> = emptyMap(),
@@ -32,9 +40,19 @@ public fun interface ToolApprovalHandler {
     public suspend fun requestApproval(request: ToolApprovalRequest): Boolean
 }
 
+/** Approval handler that preserves denial, timeout, and unavailable outcomes. */
+public fun interface ToolApprovalDecisionHandler {
+    public suspend fun requestApproval(request: ToolApprovalRequest): ToolApprovalDecision
+}
+
 /** Java-friendly approval adapter for UI coordinators that block until the user decides. */
 public fun interface BlockingToolApprovalHandler {
     public fun requestApproval(request: ToolApprovalRequest): Boolean
+}
+
+/** Java-friendly detailed approval adapter for UI coordinators that block. */
+public fun interface BlockingToolApprovalDecisionHandler {
+    public fun requestApproval(request: ToolApprovalRequest): ToolApprovalDecision
 }
 
 /** Throw from an app handler to return a controlled, non-sensitive ToolResult error. */

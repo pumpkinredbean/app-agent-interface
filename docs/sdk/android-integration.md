@@ -6,6 +6,7 @@ The application dependency-injection container should own a singleton `ToolRunti
 
 ```text
 Application / DI
+  |- ToolApprovalController
   `- ToolRuntime
        |- registered application handlers
        |- Foreground Service -> LoopbackToolServer
@@ -17,10 +18,11 @@ A handler captures an application repository in its closure:
 ```kotlin
 class AppToolModule(
     private val accountRepository: AccountRepository,
-    private val approvalCoordinator: ApprovalCoordinator,
 ) {
+    val approvals = ToolApprovalController()
+
     val runtime = ToolRuntime(
-        approvalHandler = ToolApprovalHandler(approvalCoordinator::awaitDecision),
+        approvalDecisionHandler = approvals,
     ).apply {
         register(accountBalanceSpec) { input, _ ->
             accountRepository.getBalanceJson(input)
@@ -94,32 +96,39 @@ The Kotlin runtime intentionally does not expose screen automation. A desktop ha
 
 ## Mobile approval UI
 
-`ToolApprovalHandler` is a suspending function. The application implements a coordinator that publishes a request to Activity or Compose UI and waits for the user's decision:
+`ToolApprovalController` is an application-scoped, suspending approval handler with a bounded FIFO queue:
 
 ```kotlin
+val approvals = ToolApprovalController(
+    ToolApprovalConfiguration(
+        decisionTimeoutMillis = 60_000L,
+        maxPendingRequests = 16,
+    ),
+)
+
 val runtime = ToolRuntime(
-    approvalHandler = ToolApprovalHandler { request ->
-        approvalCoordinator.awaitDecision(
-            callId = request.call.id,
-            toolName = request.spec.name,
-            input = request.call.input,
-        )
-    },
+    approvalDecisionHandler = approvals,
 )
 ```
 
-An existing Java application can use the blocking adapter. Invoke it from the runtime's worker thread, never the Android main thread:
+Install exactly one lifecycle-aware host at the Activity root:
 
-```java
-ToolRuntime runtime = ToolRuntime.withBlockingApproval(
-    request -> approvalCoordinator.awaitDecision(request)
-);
+```kotlin
+setContent {
+    AppTheme {
+        AppNavigation()
+        ToolApprovalHost(controller = approvals)
+    }
+}
 ```
 
-- Display the registered ToolSpec and actual input, not untrusted model prose.
-- Correlate the decision with the execution request using the call ID.
-- Treat rejection, cancellation, and timeout as `false`.
-- If no Activity is available or UI cannot be presented, treat approval as unavailable.
+Queued requests do not start their timeout. The current request receives the full configured window after the dialog reaches a rendered frame. The host correlates actions by call ID and advances one persistent dialog through the queue.
+
+Use `ToolApprovalNotificationBridge` to direct a background user back to that host. The bridge posts only an aggregate request count and no tool content. The host application owns `POST_NOTIFICATIONS`, the notification icon, and the navigation `PendingIntent`.
+
+An existing Java application can continue to use `ToolRuntime.withBlockingApproval(...)`; invoke that adapter from a runtime worker thread, never the Android main thread. New Compose integrations should prefer the detailed controller so timeout and unavailable outcomes remain distinct.
+
+PINs, OTPs, passwords, and tokens never belong in ToolCall input. Approve the non-secret action intent, then collect secure values inside the application's existing keypad, biometric, or OTP flow. See [On-device tool approval](on-device-approval.md) and [Compose approval UI](compose-approval-ui.md).
 
 ## Remote transport
 

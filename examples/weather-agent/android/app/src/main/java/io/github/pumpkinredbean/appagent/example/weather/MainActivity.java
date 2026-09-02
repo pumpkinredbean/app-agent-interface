@@ -1,8 +1,6 @@
 package io.github.pumpkinredbean.appagent.example.weather;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,16 +21,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import io.github.pumpkinredbean.appagent.ToolApprovalRequest;
+import androidx.activity.ComponentActivity;
+import androidx.compose.ui.platform.ComposeView;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public final class MainActivity extends Activity {
+public final class MainActivity extends ComponentActivity {
     private static final int BACKGROUND = Color.rgb(7, 16, 28);
     private static final int CARD = Color.rgb(15, 31, 49);
     private static final int CARD_ALT = Color.rgb(10, 24, 39);
@@ -41,7 +38,6 @@ public final class MainActivity extends Activity {
     private static final int ACCENT = Color.rgb(72, 184, 255);
 
     private final List<RuntimeEvent> events = new ArrayList<>();
-    private final Set<String> visibleApprovals = new HashSet<>();
     private AgentToolService service;
     private boolean bound;
     private boolean rawVisible;
@@ -52,12 +48,10 @@ public final class MainActivity extends Activity {
     private TextView rawView;
     private Button localCallButton;
     private Button rawToggleButton;
+    private ComposeView approvalHostView;
 
     private final AgentToolService.RuntimeListener runtimeListener = event ->
         runOnUiThread(() -> appendEvent(event));
-    private final AgentToolService.ApprovalListener approvalListener = request ->
-        runOnUiThread(() -> showApproval(request));
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -65,7 +59,7 @@ public final class MainActivity extends Activity {
             bound = true;
             events.clear();
             service.registerListener(runtimeListener);
-            service.registerApprovalListener(approvalListener);
+            installApprovalHost();
             localCallButton.setEnabled(true);
             setOnlineStatus(service.isReady() ? "Waiting for requests" : "Starting service");
         }
@@ -73,6 +67,7 @@ public final class MainActivity extends Activity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
+            removeApprovalHost();
             service = null;
             localCallButton.setEnabled(false);
             statusView.setText("● OFFLINE · SERVICE DISCONNECTED");
@@ -222,29 +217,26 @@ public final class MainActivity extends Activity {
         }, "in-app-tool-call").start();
     }
 
-    private void showApproval(ToolApprovalRequest request) {
-        String callId = request.getCall().getId();
-        if (!bound || service == null || isFinishing() || !visibleApprovals.add(callId)) {
-            if (service != null) service.resolveApproval(callId, false);
-            return;
-        }
-        String message = RuntimeEvent.toolLabel(request.getCall().getName())
-            + "\n\nArguments\n" + request.getCall().getInput().toString()
-            + "\n\nThis action changes alert rules stored by the app.";
-        AlertDialog dialog = new AlertDialog.Builder(this)
-            .setTitle("Approve app action?")
-            .setMessage(message)
-            .setNegativeButton("Deny", (currentDialog, which) -> resolveApproval(callId, false))
-            .setPositiveButton("Approve", (currentDialog, which) -> resolveApproval(callId, true))
-            .setOnCancelListener(currentDialog -> resolveApproval(callId, false))
-            .create();
-        dialog.setOnDismissListener(currentDialog -> visibleApprovals.remove(callId));
-        dialog.show();
+    private void installApprovalHost() {
+        if (approvalHostView != null || service == null) return;
+        approvalHostView = ApprovalUi.createHostView(this, service.getApprovalController());
+        addContentView(
+            approvalHostView,
+            new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        );
     }
 
-    private void resolveApproval(String callId, boolean approved) {
-        AgentToolService currentService = service;
-        if (currentService != null) currentService.resolveApproval(callId, approved);
+    private void removeApprovalHost() {
+        ComposeView current = approvalHostView;
+        if (current == null) return;
+        current.disposeComposition();
+        if (current.getParent() instanceof ViewGroup) {
+            ((ViewGroup) current.getParent()).removeView(current);
+        }
+        approvalHostView = null;
     }
 
     private void appendEvent(RuntimeEvent event) {
@@ -254,8 +246,6 @@ public final class MainActivity extends Activity {
         if (event.getKind() == RuntimeEvent.Kind.ERROR) {
             statusView.setText("● ONLINE · latest execution failed");
             statusView.setTextColor(Color.rgb(255, 152, 152));
-        } else if (event.getKind() == RuntimeEvent.Kind.APPROVAL) {
-            setOnlineStatus("Waiting for mobile approval");
         } else {
             setOnlineStatus(event.getKind() == RuntimeEvent.Kind.RECEIVED ? "Executing tool" : "Waiting for requests");
         }
@@ -290,8 +280,8 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        removeApprovalHost();
         if (bound) {
-            service.unregisterApprovalListener(approvalListener);
             service.unregisterListener(runtimeListener);
             unbindService(serviceConnection);
             bound = false;

@@ -26,7 +26,7 @@ protocol/                            Canonical, language-neutral app-agent/1 JSO
 packages/
   app-agent-runtime/                 Kotlin registry, validation, approval, and execution
   app-agent-transport-loopback/      Kotlin loopback HTTP transport for Android/JVM and ADB
-  app-agent-ui-compose/              Optional Material 3 tool-approval dialog
+  app-agent-ui-compose/              Optional approval queue UI and background notification
   app-agent-client/                  Typed TypeScript protocol client
   app-agent-android-ui/              Typed TypeScript Android UI fallback tools
 drivers/android-uiautomator2/        Optional generic instrumentation companion
@@ -49,12 +49,15 @@ Handlers, approval policy, authentication state, transport settings, and call ID
 ## Start here
 
 - [Kotlin SDK](docs/sdk/kotlin-sdk.md)
-- [Compose approval UI](packages/app-agent-ui-compose/README.md)
+- [On-device approval](docs/sdk/on-device-approval.md)
+- [Compose approval UI](docs/sdk/compose-approval-ui.md)
 - [TypeScript client](packages/app-agent-client/README.md)
 - [TypeScript package architecture](docs/sdk/typescript.md)
 - [Architecture](docs/sdk/architecture.md)
 - [Tool authoring](docs/sdk/tool-authoring.md)
 - [Android integration](docs/sdk/android-integration.md)
+- [Approval testing](docs/sdk/approval-testing.md)
+- [Approval troubleshooting](docs/sdk/approval-troubleshooting.md)
 - [Protocol](docs/sdk/protocol.md)
 - [Android UI automation fallback](docs/sdk/android-ui-automation.md)
 - [Android UI package](packages/app-agent-android-ui/README.md)

@@ -18,7 +18,7 @@ Node.js custom agent harness
   |- optional mobile_* tools -> semantic projector -> UiAutomator2 companion :18766
   `- app-agent/1 -> Mac :18765 -> adb forward -> Kotlin ToolRuntime
        |- Open-Meteo read handlers
-       `- app-owned alert handlers -> mobile approval -> local persistence
+       `- app-owned alert handlers -> SDK approval queue -> local persistence
 
 Android in-app button -> the same ToolRuntime execution path
 ```
@@ -60,6 +60,8 @@ The write tools do not attempt to write to Open-Meteo. They change state owned b
 - a newly created rule is also evaluated immediately;
 - a matching rule becomes `TRIGGERED` and posts an Android notification;
 - create and delete handlers run only after the Activity approves the exact tool name, input, and call ID.
+- concurrent approvals use one FIFO dialog; only the currently displayed request consumes its 60-second decision window;
+- when the Activity is not visible, one generic notification returns the user to the approval host.
 
 This scheduler is intentionally small enough to audit in a sample. A production app should use its normal durable job system, define reboot and battery behavior, and test target-SDK foreground-service limits.
 
@@ -72,11 +74,12 @@ includeBuild("../../..")
 ```
 
 ```groovy
-implementation "io.github.pumpkinredbean:app-agent-runtime:0.1.0-SNAPSHOT"
-implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.1.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-runtime:0.2.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.2.0-SNAPSHOT"
 ```
 
-[`AgentToolServer.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolServer.java) shows Java interoperability. The SDK owns registration, portable input validation, approval gating, protocol encoding, and loopback HTTP transport. The application owns Open-Meteo mapping, local alert state, service lifecycle, notifications, and approval UI.
+[`AgentToolServer.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolServer.java) shows Java interoperability. The SDK owns registration, portable input validation, FIFO approval coordination, the optional Compose approval host, protocol encoding, and loopback HTTP transport. The application owns Open-Meteo mapping, local alert state, service lifecycle, and notification navigation.
 
 ## Run Android
 

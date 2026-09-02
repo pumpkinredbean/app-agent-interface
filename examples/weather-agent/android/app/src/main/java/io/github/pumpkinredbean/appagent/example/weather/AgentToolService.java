@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import io.github.pumpkinredbean.appagent.ToolApprovalRequest;
+import io.github.pumpkinredbean.appagent.ToolApprovalController;
+import io.github.pumpkinredbean.appagent.ui.compose.ToolApprovalNotificationBridge;
+import io.github.pumpkinredbean.appagent.ui.compose.ToolApprovalNotificationConfiguration;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,11 +19,8 @@ import org.json.JSONObject;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,14 +31,9 @@ public final class AgentToolService extends Service {
     private static final String RUNTIME_CHANNEL_ID = "app-tool-runtime";
     private static final String ALERT_CHANNEL_ID = "weather-agent-alerts";
     private static final int RUNTIME_NOTIFICATION_ID = 8765;
-    private static final long APPROVAL_TIMEOUT_SECONDS = 60;
 
     public interface RuntimeListener {
         void onRuntimeEvent(RuntimeEvent event);
-    }
-
-    public interface ApprovalListener {
-        void onApprovalRequested(ToolApprovalRequest request);
     }
 
     public final class LocalBinder extends Binder {
@@ -48,28 +42,17 @@ public final class AgentToolService extends Service {
         }
     }
 
-    private static final class PendingApproval {
-        final CountDownLatch decisionReady = new CountDownLatch(1);
-        volatile boolean approved;
-
-        synchronized void resolve(boolean decision) {
-            if (decisionReady.getCount() == 0) return;
-            approved = decision;
-            decisionReady.countDown();
-        }
-    }
-
     private final LocalBinder binder = new LocalBinder();
     private final Set<RuntimeListener> listeners = new CopyOnWriteArraySet<>();
-    private final Set<ApprovalListener> approvalListeners = new CopyOnWriteArraySet<>();
-    private final Map<String, PendingApproval> pendingApprovals = new ConcurrentHashMap<>();
     private final ArrayDeque<RuntimeEvent> eventHistory = new ArrayDeque<>();
+    private final ToolApprovalController approvalController = new ToolApprovalController();
     private final ScheduledExecutorService alertScheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread thread = new Thread(runnable, "weather-alert-evaluator");
         thread.setDaemon(true);
         return thread;
     });
     private AgentToolServer server;
+    private ToolApprovalNotificationBridge approvalNotificationBridge;
     private volatile boolean ready;
 
     @Override
@@ -77,12 +60,20 @@ public final class AgentToolService extends Service {
         super.onCreate();
         createNotificationChannels();
         startForeground(RUNTIME_NOTIFICATION_ID, runtimeNotification("Starting on 127.0.0.1:" + PORT));
+        approvalNotificationBridge = new ToolApprovalNotificationBridge(
+            this,
+            approvalController,
+            new ToolApprovalNotificationConfiguration(
+                android.R.drawable.ic_dialog_alert,
+                mainActivityPendingIntent()
+            )
+        );
 
         server = new AgentToolServer(
             this,
             PORT,
             this::publish,
-            this::requestApproval,
+            approvalController,
             this::evaluateAlertsSoon
         );
         try {
@@ -125,18 +116,8 @@ public final class AgentToolService extends Service {
         listeners.remove(listener);
     }
 
-    public void registerApprovalListener(ApprovalListener listener) {
-        approvalListeners.add(listener);
-    }
-
-    public void unregisterApprovalListener(ApprovalListener listener) {
-        approvalListeners.remove(listener);
-        if (approvalListeners.isEmpty()) resolveAllApprovals(false);
-    }
-
-    public void resolveApproval(String callId, boolean approved) {
-        PendingApproval pending = pendingApprovals.get(callId);
-        if (pending != null) pending.resolve(approved);
+    public ToolApprovalController getApprovalController() {
+        return approvalController;
     }
 
     public JSONObject invokeLocal(String tool, JSONObject arguments, String source) throws JSONException {
@@ -147,40 +128,12 @@ public final class AgentToolService extends Service {
     @Override
     public void onDestroy() {
         ready = false;
-        resolveAllApprovals(false);
         alertScheduler.shutdownNow();
         if (server != null) server.close();
-        approvalListeners.clear();
+        if (approvalNotificationBridge != null) approvalNotificationBridge.close();
+        approvalController.close();
         listeners.clear();
         super.onDestroy();
-    }
-
-    private boolean requestApproval(ToolApprovalRequest request) {
-        if (approvalListeners.isEmpty()) return false;
-        PendingApproval pending = new PendingApproval();
-        pendingApprovals.put(request.getCall().getId(), pending);
-        if (approvalListeners.isEmpty()) {
-            pendingApprovals.remove(request.getCall().getId(), pending);
-            return false;
-        }
-        publish(RuntimeEvent.approvalRequested(request));
-        for (ApprovalListener listener : approvalListeners) listener.onApprovalRequested(request);
-
-        boolean decided = false;
-        try {
-            decided = pending.decisionReady.await(APPROVAL_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            return decided && pending.approved;
-        } catch (InterruptedException interrupted) {
-            Thread.currentThread().interrupt();
-            return false;
-        } finally {
-            pendingApprovals.remove(request.getCall().getId(), pending);
-            publish(RuntimeEvent.approvalResolved(request, decided && pending.approved));
-        }
-    }
-
-    private void resolveAllApprovals(boolean approved) {
-        for (PendingApproval pending : pendingApprovals.values()) pending.resolve(approved);
     }
 
     private void evaluateAlertsSoon() {
@@ -239,20 +192,24 @@ public final class AgentToolService extends Service {
     }
 
     private Notification runtimeNotification(String text) {
-        Intent activityIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
+        return new Notification.Builder(this, RUNTIME_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_popup_sync)
+            .setContentTitle("Weather Agent Tool Runtime")
+            .setContentText(text)
+            .setContentIntent(mainActivityPendingIntent())
+            .setOngoing(true)
+            .build();
+    }
+
+    private PendingIntent mainActivityPendingIntent() {
+        Intent activityIntent = new Intent(this, MainActivity.class)
+            .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(
             this,
             0,
             activityIntent,
             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
-        return new Notification.Builder(this, RUNTIME_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_popup_sync)
-            .setContentTitle("Weather Agent Tool Runtime")
-            .setContentText(text)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .build();
     }
 
     private void updateRuntimeNotification(String text) {

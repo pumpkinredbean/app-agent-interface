@@ -92,6 +92,10 @@ The default validator implements this portable subset:
 
 Other annotations may be forwarded to a provider but are ignored by the default validator. Replace `ToolInputValidator` if the application requires a complete JSON Schema implementation.
 
+### Never model secure input
+
+Do not define PIN, OTP, password, access-token, session-cookie, biometric, or private-key fields. Masking a field in UI does not undo its exposure to the model, ToolCall transport, or traces. Define only the non-secret action intent, then collect any required secret through the application's existing secure UI after on-device approval.
+
 ## Approval
 
 Approval is not model schema:
@@ -121,4 +125,5 @@ A handler returns a JSON value. The SDK does not define a common `outputSchema`.
 - Can `additionalProperties: false` be used?
 - Does the handler also enforce domain-level validation?
 - Is the result free of credentials and unnecessary personal data?
+- Are all secrets excluded from the schema, ToolCall, logs, and result?
 - Is mobile approval determined by application policy?

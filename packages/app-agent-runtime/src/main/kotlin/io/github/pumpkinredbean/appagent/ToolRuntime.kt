@@ -7,7 +7,14 @@ public class ToolRuntime @JvmOverloads constructor(
     public val registry: ToolRegistry = ToolRegistry(),
     private val inputValidator: ToolInputValidator = PortableToolInputValidator(),
     private val approvalHandler: ToolApprovalHandler? = null,
+    private val approvalDecisionHandler: ToolApprovalDecisionHandler? = null,
 ) {
+    init {
+        require(approvalHandler == null || approvalDecisionHandler == null) {
+            "Install either approvalHandler or approvalDecisionHandler, not both"
+        }
+    }
+
     public companion object {
         /** Creates a runtime with a Java-friendly blocking approval callback. */
         @JvmStatic
@@ -17,6 +24,22 @@ public class ToolRuntime @JvmOverloads constructor(
                     approvalHandler.requestApproval(request)
                 },
             )
+
+        /** Creates a runtime with a Java-friendly detailed blocking approval callback. */
+        @JvmStatic
+        public fun withBlockingDecisionApproval(
+            approvalHandler: BlockingToolApprovalDecisionHandler,
+        ): ToolRuntime = ToolRuntime(
+            approvalDecisionHandler = ToolApprovalDecisionHandler { request ->
+                approvalHandler.requestApproval(request)
+            },
+        )
+
+        /** Creates a runtime with a detailed suspending handler from Java. */
+        @JvmStatic
+        public fun withDecisionApproval(
+            approvalHandler: ToolApprovalDecisionHandler,
+        ): ToolRuntime = ToolRuntime(approvalDecisionHandler = approvalHandler)
     }
 
     public fun manifest(): ToolManifest = ToolManifest(registry.specs())
@@ -51,21 +74,46 @@ public class ToolRuntime @JvmOverloads constructor(
         }
 
         if (registered.approval == ToolApproval.MOBILE) {
-            val approver = approvalHandler
-                ?: return ToolResult.failure(
+            if (approvalHandler == null && approvalDecisionHandler == null) {
+                return ToolResult.failure(
                     call.id,
                     "APPROVAL_UNAVAILABLE",
                     "This tool requires mobile approval, but no approval handler is installed",
                 )
-            val approved = try {
-                approver.requestApproval(ToolApprovalRequest(call, registered.spec))
+            }
+
+            val request = ToolApprovalRequest(call, registered.spec)
+            val decision = try {
+                approvalDecisionHandler?.requestApproval(request)
+                    ?: if (approvalHandler!!.requestApproval(request)) {
+                        ToolApprovalDecision.APPROVED
+                    } else {
+                        ToolApprovalDecision.DENIED
+                    }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
                 return ToolResult.failure(call.id, "APPROVAL_FAILED", "The approval flow failed")
             }
-            if (!approved) {
-                return ToolResult.failure(call.id, "APPROVAL_DENIED", "The user declined this tool call")
+
+            when (decision) {
+                ToolApprovalDecision.APPROVED -> Unit
+                ToolApprovalDecision.DENIED -> return ToolResult.failure(
+                    call.id,
+                    "APPROVAL_DENIED",
+                    "The user declined this tool call",
+                )
+                ToolApprovalDecision.TIMED_OUT -> return ToolResult.failure(
+                    call.id,
+                    "APPROVAL_TIMEOUT",
+                    "The approval request timed out",
+                    retryable = true,
+                )
+                ToolApprovalDecision.UNAVAILABLE -> return ToolResult.failure(
+                    call.id,
+                    "APPROVAL_UNAVAILABLE",
+                    "The application could not present this approval request",
+                )
             }
         }
 

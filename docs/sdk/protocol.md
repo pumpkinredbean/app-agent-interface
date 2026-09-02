@@ -86,6 +86,7 @@ Core error codes:
 | `APPROVAL_UNAVAILABLE` | No approval handler is available |
 | `APPROVAL_FAILED` | Approval UI processing fails |
 | `APPROVAL_DENIED` | The user declines the request |
+| `APPROVAL_TIMEOUT` | A visibly presented approval reaches its decision deadline |
 | `TOOL_EXECUTION_FAILED` | The handler throws an unexpected exception |
 
 Applications may add domain-specific error codes by throwing `ToolExecutionException`.
@@ -102,7 +103,9 @@ A malformed request returns HTTP 400 with `protocol.error`; failed authenticatio
 
 ## Approval flow
 
-Approval is not included in the wire ToolSpec. The mobile runtime reads registration policy, suspends ToolCall processing, and sends an approval request to application UI. Approval continues to the handler. Rejection returns a failed result with the same call ID.
+Approval is not included in the wire ToolSpec. The mobile runtime reads registration policy, suspends ToolCall processing, and sends an approval request to application UI. Approval continues to the handler. Rejection or timeout returns a failed result with the same call ID.
+
+PINs, OTPs, passwords, authentication tokens, and other secrets must not be transported as ToolCall input. They remain inside a separate app-owned secure input flow.
 
 ## Versioning
 

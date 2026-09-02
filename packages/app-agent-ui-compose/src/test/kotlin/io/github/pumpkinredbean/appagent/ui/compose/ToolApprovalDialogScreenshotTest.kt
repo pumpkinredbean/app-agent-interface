@@ -35,6 +35,8 @@ class ToolApprovalDialogScreenshotTest {
                     request = previewRequest,
                     onApprove = {},
                     onDeny = {},
+                    queuedRequestCount = 2,
+                    remainingDecisionMillis = 47_000L,
                 )
             }
         }

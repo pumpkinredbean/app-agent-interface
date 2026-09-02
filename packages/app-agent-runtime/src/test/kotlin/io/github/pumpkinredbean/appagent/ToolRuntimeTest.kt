@@ -91,6 +91,38 @@ class ToolRuntimeTest {
         assertEquals(true, result.output!!.jsonObject["approved"]?.let { (it as JsonPrimitive).content.toBoolean() })
     }
 
+    @Test
+    fun `detailed approval outcomes preserve timeout and unavailable failures`() {
+        val timeoutRuntime = ToolRuntime(
+            approvalDecisionHandler = ToolApprovalDecisionHandler {
+                ToolApprovalDecision.TIMED_OUT
+            },
+        )
+        timeoutRuntime.register(profileSpec(), ToolApproval.MOBILE) { _, _ -> buildJsonObject {} }
+
+        val timeout = timeoutRuntime.executeBlocking(
+            ToolCall("call-timeout", "get_profile", buildJsonObject { put("userId", "user-7") }),
+        )
+
+        assertFalse(timeout.ok)
+        assertEquals("APPROVAL_TIMEOUT", timeout.error?.code)
+        assertTrue(timeout.error?.retryable == true)
+
+        val unavailableRuntime = ToolRuntime(
+            approvalDecisionHandler = ToolApprovalDecisionHandler {
+                ToolApprovalDecision.UNAVAILABLE
+            },
+        )
+        unavailableRuntime.register(profileSpec(), ToolApproval.MOBILE) { _, _ -> buildJsonObject {} }
+
+        val unavailable = unavailableRuntime.executeBlocking(
+            ToolCall("call-unavailable", "get_profile", buildJsonObject { put("userId", "user-7") }),
+        )
+
+        assertFalse(unavailable.ok)
+        assertEquals("APPROVAL_UNAVAILABLE", unavailable.error?.code)
+    }
+
     private fun profileSpec(): ToolSpec = ToolSpec(
         name = "get_profile",
         description = "Returns a profile when the user asks for signed-in account information.",

@@ -1,7 +1,5 @@
 package io.github.pumpkinredbean.appagent.example.weather;
 
-import io.github.pumpkinredbean.appagent.ToolApprovalRequest;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public final class RuntimeEvent {
-    public enum Kind { READY, RECEIVED, APPROVAL, COMPLETED, ERROR }
+    public enum Kind { READY, RECEIVED, COMPLETED, ERROR }
 
     private final Kind kind;
     private final long occurredAtEpochMs;
@@ -57,28 +55,6 @@ public final class RuntimeEvent {
             sourceLabel + " received",
             toolLabel(tool) + " · " + argumentSummary(tool, arguments),
             call.toString()
-        );
-    }
-
-    public static RuntimeEvent approvalRequested(ToolApprovalRequest request) {
-        return new RuntimeEvent(
-            Kind.APPROVAL,
-            System.currentTimeMillis(),
-            request.getCall().getId(),
-            "Mobile approval required",
-            toolLabel(request.getCall().getName()) + " is waiting for a decision on this screen",
-            request.getCall().getInput().toString()
-        );
-    }
-
-    public static RuntimeEvent approvalResolved(ToolApprovalRequest request, boolean approved) {
-        return new RuntimeEvent(
-            Kind.APPROVAL,
-            System.currentTimeMillis(),
-            request.getCall().getId(),
-            approved ? "Mobile action approved" : "Mobile action denied",
-            toolLabel(request.getCall().getName()),
-            request.getCall().getInput().toString()
         );
     }
 
@@ -141,7 +117,6 @@ public final class RuntimeEvent {
         String badge = switch (kind) {
             case READY -> "READY";
             case RECEIVED -> "RECEIVED";
-            case APPROVAL -> "APPROVAL";
             case COMPLETED -> "COMPLETED";
             case ERROR -> "ERROR";
         };

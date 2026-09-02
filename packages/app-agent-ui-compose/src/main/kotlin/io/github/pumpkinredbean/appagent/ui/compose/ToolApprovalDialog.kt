@@ -26,13 +26,17 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pumpkinredbean.appagent.ToolApprovalRequest
+import java.util.Locale
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -53,6 +57,8 @@ public fun ToolApprovalDialog(
     onApprove: () -> Unit,
     onDeny: () -> Unit,
     modifier: Modifier = Modifier,
+    queuedRequestCount: Int = 0,
+    remainingDecisionMillis: Long? = null,
 ) {
     BasicAlertDialog(
         onDismissRequest = onDeny,
@@ -62,6 +68,8 @@ public fun ToolApprovalDialog(
             content = request.toDialogContent(),
             onApprove = onApprove,
             onDeny = onDeny,
+            queuedRequestCount = queuedRequestCount,
+            remainingDecisionMillis = remainingDecisionMillis,
         )
     }
 }
@@ -72,6 +80,8 @@ internal fun ToolApprovalDialogSurface(
     onApprove: () -> Unit,
     onDeny: () -> Unit,
     modifier: Modifier = Modifier,
+    queuedRequestCount: Int = 0,
+    remainingDecisionMillis: Long? = null,
 ) {
     Surface(
         modifier = modifier
@@ -99,6 +109,7 @@ internal fun ToolApprovalDialogSurface(
             Spacer(Modifier.height(22.dp))
             Text(
                 text = stringResource(R.string.app_agent_approval_title),
+                modifier = Modifier.semantics { heading() },
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
@@ -113,7 +124,11 @@ internal fun ToolApprovalDialogSurface(
 
             Spacer(Modifier.height(20.dp))
             ApprovalDetails(content)
-            Spacer(Modifier.height(18.dp))
+            ApprovalQueueStatus(
+                queuedRequestCount = queuedRequestCount,
+                remainingDecisionMillis = remainingDecisionMillis,
+            )
+            Spacer(Modifier.height(16.dp))
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(Modifier.height(14.dp))
@@ -142,6 +157,47 @@ internal fun ToolApprovalDialogSurface(
                     Text(stringResource(R.string.app_agent_approval_allow_once))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ApprovalQueueStatus(
+    queuedRequestCount: Int,
+    remainingDecisionMillis: Long?,
+) {
+    if (queuedRequestCount <= 0 && remainingDecisionMillis == null) return
+
+    Spacer(Modifier.height(14.dp))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        if (queuedRequestCount > 0) {
+            Text(
+                text = pluralStringResource(
+                    R.plurals.app_agent_approval_waiting_count,
+                    queuedRequestCount,
+                    queuedRequestCount,
+                ),
+                modifier = Modifier.testTag("tool-approval-queued-count"),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+        if (remainingDecisionMillis != null) {
+            Text(
+                text = stringResource(
+                    R.string.app_agent_approval_timeout,
+                    remainingDecisionMillis.toCountdown(),
+                ),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .testTag("tool-approval-countdown"),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
@@ -239,7 +295,7 @@ private fun String.humanize(): String {
         .replace('_', ' ')
         .replace('-', ' ')
         .trim()
-        .lowercase()
+        .lowercase(Locale.ROOT)
     return words.replaceFirstChar { character -> character.titlecase() }
 }
 
@@ -247,4 +303,11 @@ private fun JsonElement.displayValue(): String = when (this) {
     JsonNull -> "null"
     is JsonPrimitive -> contentOrNull ?: toString()
     is JsonArray, is JsonObject -> toString()
+}
+
+private fun Long.toCountdown(): String {
+    val totalSeconds = (coerceAtLeast(0L) + 999L) / 1_000L
+    val minutes = totalSeconds / 60L
+    val seconds = totalSeconds % 60L
+    return String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
 }

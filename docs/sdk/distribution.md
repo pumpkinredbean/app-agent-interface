@@ -19,13 +19,13 @@ On GitHub Actions, the build reads `GITHUB_REPOSITORY`, `GITHUB_ACTOR`, and the 
 Push the repository to GitHub, then push a version tag:
 
 ```bash
-git tag sdk-v0.1.1
-git push origin sdk-v0.1.1
+git tag sdk-v0.2.0
+git push origin sdk-v0.2.0
 ```
 
-The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.1.1`.
+The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.2.0`.
 
-Do not republish an existing release version. Use a new version such as `0.1.1` for every changed release.
+Do not republish an existing release version. Use a new version such as `0.2.0` for every changed release.
 
 ## Publish directly from a workstation
 
@@ -40,7 +40,7 @@ gpr.key=CLASSIC_PERSONAL_ACCESS_TOKEN
 The classic PAT needs `write:packages`, and its account must be able to access the target repository. An organization using SAML SSO may also require explicit organization authorization for the token.
 
 ```bash
-./gradlew -PsdkVersion=0.1.0 clean test publish
+./gradlew -PsdkVersion=0.2.0 clean test publish
 ```
 
 ## Install in an Android project
@@ -82,10 +82,10 @@ Application module `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:0.1.1")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.1.1")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:0.2.0")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0")
     // Optional:
-    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.1.1")
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.2.0")
 }
 ```
 
