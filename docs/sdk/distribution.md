@@ -2,12 +2,16 @@
 
 ## Current registry: GitHub Packages
 
-The publishing workflow uploads the runtime, transport, and optional Compose UI artifacts to the Maven registry associated with the GitHub repository that contains the SDK source:
+The publishing workflow uploads the runtime, transport, optional Compose UI,
+and debug Inspector pair to the Maven registry associated with the GitHub
+repository that contains the SDK source:
 
 ```text
 io.github.pumpkinredbean:app-agent-runtime:<version>
 io.github.pumpkinredbean:app-agent-transport-loopback:<version>
 io.github.pumpkinredbean:app-agent-ui-compose:<version>
+io.github.pumpkinredbean:app-agent-inspector:<version>
+io.github.pumpkinredbean:app-agent-inspector-noop:<version>
 ```
 
 Gradle publishing is configured in the repository-root `build.gradle.kts`. Automation lives in `.github/workflows/publish-sdk.yml`.
@@ -19,13 +23,13 @@ On GitHub Actions, the build reads `GITHUB_REPOSITORY`, `GITHUB_ACTOR`, and the 
 Push the repository to GitHub, then push a version tag:
 
 ```bash
-git tag sdk-v0.2.0
-git push origin sdk-v0.2.0
+git tag sdk-v0.3.0
+git push origin sdk-v0.3.0
 ```
 
-The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.2.0`.
+The value after `sdk-v` becomes the Maven version. You can also run the `Publish Kotlin SDK` workflow manually and enter a version such as `0.3.0`.
 
-Do not republish an existing release version. Use a new version such as `0.2.0` for every changed release.
+Do not republish an existing release version. Use a new version such as `0.3.0` for every changed release.
 
 ## Publish directly from a workstation
 
@@ -40,7 +44,7 @@ gpr.key=CLASSIC_PERSONAL_ACCESS_TOKEN
 The classic PAT needs `write:packages`, and its account must be able to access the target repository. An organization using SAML SSO may also require explicit organization authorization for the token.
 
 ```bash
-./gradlew -PsdkVersion=0.2.0 clean test publish
+./gradlew -PsdkVersion=0.3.0 clean test publish
 ```
 
 ## Install in an Android project
@@ -82,12 +86,19 @@ Application module `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:0.2.0")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:<version>")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:<version>")
     // Optional:
-    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.2.0")
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:<version>")
+
+    // Optional debug audit UI with a release-safe API:
+    debugImplementation("io.github.pumpkinredbean:app-agent-inspector:<version>")
+    releaseImplementation("io.github.pumpkinredbean:app-agent-inspector-noop:<version>")
 }
 ```
+
+Do not place both Inspector artifacts in the same variant. They intentionally
+provide the same public `AppAgentInspector` API.
 
 When another GitHub Actions repository consumes the SDK, choose one of these options:
 

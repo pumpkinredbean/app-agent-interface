@@ -19,7 +19,11 @@ rootProject.name = "app-agent-interface"
 include(":app-agent-runtime")
 include(":app-agent-transport-loopback")
 include(":app-agent-ui-compose")
+include(":app-agent-inspector")
+include(":app-agent-inspector-noop")
 
 project(":app-agent-runtime").projectDir = file("packages/app-agent-runtime")
 project(":app-agent-transport-loopback").projectDir = file("packages/app-agent-transport-loopback")
 project(":app-agent-ui-compose").projectDir = file("packages/app-agent-ui-compose")
+project(":app-agent-inspector").projectDir = file("packages/app-agent-inspector")
+project(":app-agent-inspector-noop").projectDir = file("packages/app-agent-inspector-noop")

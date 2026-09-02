@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Maven version to publish, for example 0.2.0"
+        description: "Maven version to publish, for example 0.3.0"
         required: true
         type: string
 
@@ -61,4 +61,6 @@ jobs:
             :app-agent-runtime:publishMavenPublicationToGitHubPackagesRepository \
             :app-agent-transport-loopback:publishMavenPublicationToGitHubPackagesRepository \
             :app-agent-ui-compose:publishReleasePublicationToGitHubPackagesRepository \
+            :app-agent-inspector:publishReleasePublicationToGitHubPackagesRepository \
+            :app-agent-inspector-noop:publishReleasePublicationToGitHubPackagesRepository \
             --no-daemon

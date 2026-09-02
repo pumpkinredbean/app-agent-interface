@@ -31,7 +31,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Test Kotlin and Compose SDKs
-        run: ./gradlew clean test :app-agent-ui-compose:assembleRelease --no-daemon
+        run: >-
+          ./gradlew clean test
+          :app-agent-ui-compose:assembleRelease
+          :app-agent-inspector:assembleRelease
+          :app-agent-inspector-noop:assembleRelease
+          :app-agent-inspector:verifyRoborazziDebug
+          :app-agent-inspector:lintDebug
+          :app-agent-inspector-noop:lintRelease
+          --no-daemon
 
   typescript:
     runs-on: ubuntu-latest
@@ -75,7 +83,7 @@ jobs:
 
       - name: Build weather example
         working-directory: examples/weather-agent/android
-        run: ./gradlew :app:assembleDebug --no-daemon
+        run: ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon
 
       - name: Build UiAutomator2 companion
         run: >-

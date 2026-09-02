@@ -11,8 +11,10 @@ This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or
 | `app-agent-runtime` | `ToolSpec`, registry, input validation, approval policy, execution, and JSON codec |
 | `app-agent-transport-loopback` | Android/JVM loopback HTTP server and ADB-forwardable endpoints |
 | `app-agent-ui-compose` | Optional FIFO approval host, Material 3 dialog, and background notification bridge |
+| `app-agent-inspector` | Optional debug audit history, payload viewer, and foreground shake entry point |
+| `app-agent-inspector-noop` | API-compatible release implementation that performs no work |
 
-The default local version is `0.2.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
+The default local version is `0.3.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
 
 ## Tool specification
 
@@ -30,7 +32,7 @@ Handlers, mobile approval, authentication state, transport settings, and call ID
 
 ## Install from GitHub Packages
 
-Pushing a tag such as `sdk-v0.2.0` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
+Pushing a tag such as `sdk-v0.3.0` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
 
 ```kotlin
 // consuming-project/settings.gradle.kts
@@ -53,10 +55,14 @@ dependencyResolutionManagement {
 ```kotlin
 // consuming-project/build.gradle.kts
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:0.2.0")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:<version>")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:<version>")
     // Optional:
-    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.2.0")
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:<version>")
+
+    // Optional debug audit UI:
+    debugImplementation("io.github.pumpkinredbean:app-agent-inspector:<version>")
+    releaseImplementation("io.github.pumpkinredbean:app-agent-inspector-noop:<version>")
 }
 ```
 
@@ -165,7 +171,10 @@ val result = runtime.execute(
         name = "get_account_balance",
         input = buildJsonObject {},
     ),
-    attributes = mapOf("caller" to "in-app-agent"),
+    attributes = mapOf(
+        "source" to "in-app-agent",
+        "transport" to "direct",
+    ),
 )
 ```
 
@@ -224,6 +233,18 @@ Secrets such as PINs, OTPs, passwords, and access tokens must not be fields in a
 
 `/v1/capabilities` is an early PoC compatibility alias. New consumers should use `/v1/tools`.
 
+## Debug audit inspector
+
+`ToolRuntime` emits typed, process-local audit events for phases that actually
+occur. The optional Inspector records a bounded in-memory session and exposes
+Calls, Approvals, lifecycle, request payload, validation, and response payload
+views. It can open from a foreground shake gesture or through its returned
+handle.
+
+Pair the real debug artifact with the API-compatible release no-op. The no-op
+registers no audit listener, Activity callback, sensor listener, or UI. See
+[Debug audit inspector](debug-inspector.md).
+
 ## Verification
 
 ```bash
@@ -234,12 +255,14 @@ The test suite covers:
 
 - exact three-field ToolSpec serialization;
 - registration, validation, execution, and controlled errors;
+- actual audit-event sequencing, listener detachment, and listener-failure isolation;
 - approval denial without handler execution;
 - FIFO approval concurrency, presentation-only timeout, cancellation, and fail-closed shutdown;
 - privacy-safe approval notification content;
 - `app-agent/1` round trips;
 - loopback binding, bearer authentication, and real HTTP calls;
 - Java interoperability for existing Android applications.
+- bounded Inspector retention, approval history, payload expansion, and shake debouncing.
 
 ## Documentation
 
@@ -249,6 +272,7 @@ The test suite covers:
 - [Android integration](android-integration.md)
 - [On-device approval](on-device-approval.md)
 - [Compose approval UI](compose-approval-ui.md)
+- [Debug audit inspector](debug-inspector.md)
 - [Approval testing](approval-testing.md)
 - [Approval troubleshooting](approval-troubleshooting.md)
 - [Protocol](protocol.md)

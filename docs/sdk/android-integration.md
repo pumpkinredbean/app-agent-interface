@@ -84,11 +84,17 @@ An in-app agent bypasses HTTP:
 ```kotlin
 val result = toolRuntime.execute(
     call = ToolCall(callId, selectedTool, modelInput),
-    attributes = mapOf("caller" to "in-app-agent"),
+    attributes = mapOf(
+        "source" to "In-app agent",
+        "transport" to "direct",
+    ),
 )
 ```
 
 Desktop and in-app callers therefore share input validation, approval, handler behavior, and error semantics.
+
+The optional debug Inspector uses the `source` and `transport` attributes
+as display metadata. Other attributes remain visible in call details.
 
 ## Optional UI fallback for a desktop harness
 
@@ -142,3 +148,13 @@ Do not change `LoopbackToolServer` to bind to `0.0.0.0`, and do not bundle ngrok
 - immediate session invalidation when the user signs out.
 
 Adding a relay transport does not change ToolSpec, registration, or handler APIs.
+
+## Debug audit UI
+
+Install `app-agent-inspector` only in debug variants and
+`app-agent-inspector-noop` in release variants. Both expose the same
+`AppAgentInspector.install(...)` API, so application initialization can stay
+in `src/main`. The real artifact observes the shared `ToolRuntime` and can
+open from a foreground shake; the release artifact performs no work.
+
+See [Debug audit inspector](debug-inspector.md).

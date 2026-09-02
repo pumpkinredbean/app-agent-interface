@@ -4,6 +4,13 @@ All notable changes will be documented in this file. The project follows [Semant
 
 ## Unreleased
 
+## 0.3.0 - 2026-09-02
+
+- Added typed `ToolRuntime` audit lifecycle events with failure isolation and detachable listeners.
+- Added debug-only Calls, Approvals, lifecycle, and expandable request/response payload inspection.
+- Added a foreground-only shake entry point and a bounded in-memory audit store.
+- Added an API-compatible `app-agent-inspector-noop` artifact for release variants.
+
 ## 0.2.0 - 2026-09-02
 
 - Added an application-scoped FIFO `ToolApprovalController` with configurable queue capacity and presentation-only decision timeout.

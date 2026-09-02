@@ -21,9 +21,12 @@ Transport (ADB loopback now, authenticated relay later)
       |
       v
 ToolRuntime -- input validation -- ToolApprovalController -- app handler
-                                      |                     |
-                                      v                     v
-                              app-owned approval UI   signed-in app services
+     |                                |                     |
+     v                                v                     v
+audit events                  app-owned approval UI   signed-in app services
+     |
+     v
+debug Inspector / application audit sink
 
 In-app Agent UI ----------------- direct ToolRuntime.execute()
 ```
@@ -44,7 +47,7 @@ This is the information a model needs to select a tool and generate its argument
 
 ### Runtime
 
-`ToolRuntime` always executes the same sequence:
+`ToolRuntime` conditionally evaluates these stages:
 
 1. verify that the tool is registered;
 2. validate the input against its JSON Schema;
@@ -53,6 +56,11 @@ This is the information a model needs to select a tool and generate its argument
 5. return either output or a normalized error.
 
 Model-generated names and arguments are never passed directly to application APIs without validation.
+
+The runtime emits audit events only for stages that actually occur. A read-only
+tool therefore has no approval events, invalid input never has an execution
+event, and cancellation does not fabricate a `ToolResult`. Listener failures
+are isolated from execution.
 
 `ToolApprovalController` is an application-scoped FIFO coordinator rather than a fixed execution pipeline. It is invoked only when runtime policy requires approval. One Compose host observes its state, presents one current request, and advances to later requests after a decision. Queue wait time does not consume the current request's presentation-only timeout.
 
@@ -67,6 +75,18 @@ Remote connectivity should be implemented as a separate authenticated WebSocket 
 The agent loop and chat UI live outside the Kotlin SDK. The current Node.js example selects a provider, maps the mobile manifest to that provider's tool format, validates the selected call, and sends only the normalized ToolCall to the mobile runtime.
 
 The example can also add optional harness-owned Android UI tools. They run through a separate UiAutomator2 instrumentation companion, remain scoped to one target package chosen at startup, and do not become Kotlin SDK domain tools. The agent should prefer application-defined semantic tools and use the UI path only as a fallback. See [Android UI automation fallback](android-ui-automation.md).
+
+### Debug Inspector
+
+The optional Android Inspector subscribes to `ToolRuntime` audit events and
+keeps a bounded in-memory history. Its real artifact contains a non-exported
+Compose Activity and a foreground-only shake detector. An API-compatible no-op
+artifact lets release variants compile the same application initialization code
+without shipping Inspector behavior.
+
+It is a developer tool, not a durable compliance log. Production persistence
+belongs to an application-owned audit listener with explicit retention and
+access-control policy.
 
 ## Provider mapping
 

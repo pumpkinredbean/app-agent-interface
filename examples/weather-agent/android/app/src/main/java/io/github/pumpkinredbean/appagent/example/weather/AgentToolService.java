@@ -10,6 +10,9 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import io.github.pumpkinredbean.appagent.ToolApprovalController;
+import io.github.pumpkinredbean.appagent.inspector.AppAgentInspector;
+import io.github.pumpkinredbean.appagent.inspector.InspectorConfiguration;
+import io.github.pumpkinredbean.appagent.inspector.InspectorHandle;
 import io.github.pumpkinredbean.appagent.ui.compose.ToolApprovalNotificationBridge;
 import io.github.pumpkinredbean.appagent.ui.compose.ToolApprovalNotificationConfiguration;
 
@@ -52,6 +55,7 @@ public final class AgentToolService extends Service {
         return thread;
     });
     private AgentToolServer server;
+    private InspectorHandle inspector;
     private ToolApprovalNotificationBridge approvalNotificationBridge;
     private volatile boolean ready;
 
@@ -75,6 +79,11 @@ public final class AgentToolService extends Service {
             this::publish,
             approvalController,
             this::evaluateAlertsSoon
+        );
+        inspector = AppAgentInspector.install(
+            getApplication(),
+            server.runtime(),
+            new InspectorConfiguration(true, 200)
         );
         try {
             server.start();
@@ -129,6 +138,7 @@ public final class AgentToolService extends Service {
     public void onDestroy() {
         ready = false;
         alertScheduler.shutdownNow();
+        if (inspector != null) inspector.close();
         if (server != null) server.close();
         if (approvalNotificationBridge != null) approvalNotificationBridge.close();
         approvalController.close();

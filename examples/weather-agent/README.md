@@ -74,12 +74,14 @@ includeBuild("../../..")
 ```
 
 ```groovy
-implementation "io.github.pumpkinredbean:app-agent-runtime:0.2.0-SNAPSHOT"
-implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.2.0-SNAPSHOT"
-implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.2.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-runtime:0.3.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.3.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.3.0-SNAPSHOT"
+debugImplementation "io.github.pumpkinredbean:app-agent-inspector:0.3.0-SNAPSHOT"
+releaseImplementation "io.github.pumpkinredbean:app-agent-inspector-noop:0.3.0-SNAPSHOT"
 ```
 
-[`AgentToolServer.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolServer.java) shows Java interoperability. The SDK owns registration, portable input validation, FIFO approval coordination, the optional Compose approval host, protocol encoding, and loopback HTTP transport. The application owns Open-Meteo mapping, local alert state, service lifecycle, and notification navigation.
+[`AgentToolServer.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolServer.java) shows Java interoperability. [`AgentToolService.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolService.java) installs the same Inspector API from common source code; debug builds get the real audit UI, while release builds resolve the no-op artifact. The SDK owns registration, portable input validation, FIFO approval coordination, the optional Compose approval host, protocol encoding, and loopback HTTP transport. The application owns Open-Meteo mapping, local alert state, service lifecycle, and notification navigation.
 
 ## Run Android
 

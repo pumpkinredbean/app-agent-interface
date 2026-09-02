@@ -95,6 +95,10 @@ public final class AgentToolServer implements Closeable {
         server.start();
     }
 
+    public ToolRuntime runtime() {
+        return runtime;
+    }
+
     public JSONObject invokeLocal(String tool, JSONObject arguments, String source) throws JSONException {
         ToolCall call = new ToolCall(
             UUID.randomUUID().toString(),
@@ -102,7 +106,10 @@ public final class AgentToolServer implements Closeable {
             ToolJson.parseObject(arguments.toString())
         );
         publishReceived(call, source);
-        ToolResult result = runtime.executeBlocking(call, Map.of("source", source));
+        ToolResult result = runtime.executeBlocking(
+            call,
+            Map.of("source", source, "transport", "direct")
+        );
         publishCompleted(call, result, source);
         return new JSONObject(ToolProtocol.encodeResult(result));
     }
