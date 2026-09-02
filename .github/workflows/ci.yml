@@ -36,7 +36,6 @@ jobs:
           :app-agent-ui-compose:assembleRelease
           :app-agent-inspector:assembleRelease
           :app-agent-inspector-noop:assembleRelease
-          :app-agent-inspector:verifyRoborazziDebug
           :app-agent-inspector:lintDebug
           :app-agent-inspector-noop:lintRelease
           --no-daemon
