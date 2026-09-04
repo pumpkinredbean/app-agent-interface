@@ -14,7 +14,10 @@ function walk(directory, predicate) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     if (ignoredDirectories.has(entry.name)) return [];
     const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) return walk(path, predicate);
+    if (entry.isDirectory()) {
+      if (existsSync(resolve(path, ".git"))) return [];
+      return walk(path, predicate);
+    }
     return predicate(path) ? [path] : [];
   });
 }
