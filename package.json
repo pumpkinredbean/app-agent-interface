@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "tsc -b --clean",
-    "lint": "eslint packages/app-agent-client/src packages/app-agent-client/test packages/app-agent-android-ui/src packages/app-agent-android-ui/test examples/weather-agent/desktop/src examples/weather-agent/desktop/test examples/weather-agent/desktop/scripts",
+    "docs:check": "node scripts/check-docs.mjs",
+    "lint": "eslint scripts packages/app-agent-client/src packages/app-agent-client/test packages/app-agent-android-ui/src packages/app-agent-android-ui/test examples/weather-agent/desktop/src examples/weather-agent/desktop/test examples/weather-agent/desktop/scripts",
     "test": "npm run build && node --test packages/app-agent-client/dist/test/**/*.test.js packages/app-agent-android-ui/dist/test/**/*.test.js examples/weather-agent/desktop/dist/test/**/*.test.js",
     "typecheck": "tsc -b --pretty false",
     "pack:check": "npm pack --dry-run --workspace=@pumpkinredbean/app-agent-client && npm pack --dry-run --workspace=@pumpkinredbean/app-agent-android-ui"

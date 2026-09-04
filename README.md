@@ -5,9 +5,11 @@ Provider-neutral Kotlin and TypeScript SDKs for turning an existing application 
 [![CI](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml/badge.svg)](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Applications define their own tools. The Kotlin runtime registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. The TypeScript client discovers and calls them from desktop, remote, or other agent harnesses. Optional Android UI automation is a separate app-scoped fallback rather than the primary interface.
+Applications define their own tools. The Kotlin runtime registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. The TypeScript client discovers and calls them from desktop or other agent harnesses. The currently shipped transport uses ADB-forwarded loopback; authenticated remote relay transport remains a separate future adapter. Optional Android UI automation is an app-scoped fallback rather than the primary interface.
 
 > Status: experimental. The public API and wire protocol may change before `1.0.0`.
+
+Current releases: Kotlin/Maven `0.4.0`; TypeScript packages are workspace source packages and are not yet published to npm.
 
 ## Design principles
 
@@ -35,6 +37,7 @@ packages/
 drivers/android-uiautomator2/        Optional generic instrumentation companion
 docs/sdk/                            Architecture and integration documentation
 examples/weather-agent/              Android weather and desktop agent example
+examples/trading-agent/              Native Android UI-frame and local-order example
 ```
 
 ## Model-visible contract
@@ -69,6 +72,7 @@ Handlers, approval policy, authentication state, transport settings, and call ID
 - [Distribution](docs/sdk/distribution.md)
 - [Weather agent example](examples/weather-agent/README.md)
 - [Native trading agent example](examples/trading-agent/README.md)
+- [Changelog](CHANGELOG.md)
 
 ## Distribution
 
@@ -83,7 +87,7 @@ io.github.pumpkinredbean:app-agent-inspector:<version>
 io.github.pumpkinredbean:app-agent-inspector-noop:<version>
 ```
 
-The npm workspaces build publication-ready ESM packages with declarations:
+The npm workspaces build publication-ready ESM packages with declarations, but the repository does not currently publish them to npm:
 
 ```text
 @pumpkinredbean/app-agent-client

@@ -19,15 +19,22 @@ App Agent Interface is experimental and welcomes focused fixes, documentation im
 Run the relevant checks before opening a pull request:
 
 ```bash
-./gradlew test
+./gradlew clean test \
+  :app-agent-ui-compose:assembleRelease \
+  :app-agent-inspector:assembleRelease \
+  :app-agent-inspector-noop:assembleRelease
 
 npm ci
+npm run docs:check
 npm run lint
 npm test
 npm run pack:check
 
 cd examples/weather-agent/android
-./gradlew :app:assembleDebug
+./gradlew :app:assembleDebug :app:assembleRelease
+
+cd ../../trading-agent/android
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease
 ```
 
 The UiAutomator2 companion can be built from the repository root with:

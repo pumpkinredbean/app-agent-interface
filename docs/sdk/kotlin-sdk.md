@@ -1,6 +1,6 @@
 # App Agent Interface Kotlin SDK
 
-A Kotlin runtime that lets an Android application expose its own service capabilities as model-callable tools. Desktop agents and future in-app agents can execute the same registered handlers through a single runtime.
+A Kotlin runtime that lets an Android application expose its own service capabilities as model-callable tools. Desktop and in-app agents can execute the same registered handlers through a single runtime.
 
 This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or a predefined tool catalog. It is the application-side runtime for registering, validating, approving, executing, and transporting application-defined tools through `app-agent/1`.
 
@@ -15,7 +15,7 @@ This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or
 | `app-agent-inspector` | Optional debug audit history, payload viewer, and foreground shake entry point |
 | `app-agent-inspector-noop` | API-compatible release implementation that performs no work |
 
-The default local version is `0.4.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
+The latest published Kotlin version is `0.4.0`. The repository currently defaults local composite builds to `0.4.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
 
 ## Tool specification
 
@@ -33,7 +33,7 @@ Handlers, mobile approval, authentication state, transport settings, and call ID
 
 ## Install from GitHub Packages
 
-Pushing a tag such as `sdk-v0.4.0` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
+An `sdk-v*` tag publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
 
 ```kotlin
 // consuming-project/settings.gradle.kts
@@ -56,15 +56,15 @@ dependencyResolutionManagement {
 ```kotlin
 // consuming-project/build.gradle.kts
 dependencies {
-    implementation("io.github.pumpkinredbean:app-agent-runtime:<version>")
-    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:<version>")
+    implementation("io.github.pumpkinredbean:app-agent-runtime:0.4.0")
+    implementation("io.github.pumpkinredbean:app-agent-transport-loopback:0.4.0")
     // Optional:
-    implementation("io.github.pumpkinredbean:app-agent-ui:<version>")
-    implementation("io.github.pumpkinredbean:app-agent-ui-compose:<version>")
+    implementation("io.github.pumpkinredbean:app-agent-ui:0.4.0")
+    implementation("io.github.pumpkinredbean:app-agent-ui-compose:0.4.0")
 
     // Optional debug audit UI:
-    debugImplementation("io.github.pumpkinredbean:app-agent-inspector:<version>")
-    releaseImplementation("io.github.pumpkinredbean:app-agent-inspector-noop:<version>")
+    debugImplementation("io.github.pumpkinredbean:app-agent-inspector:0.4.0")
+    releaseImplementation("io.github.pumpkinredbean:app-agent-inspector-noop:0.4.0")
 }
 ```
 
@@ -272,8 +272,9 @@ The test suite covers:
 - privacy-safe approval notification content;
 - `app-agent/1` round trips;
 - loopback binding, bearer authentication, and real HTTP calls;
-- Java interoperability for existing Android applications.
-- bounded Inspector retention, approval history, payload expansion, and shake debouncing.
+- Java interoperability for existing Android applications;
+- bounded Inspector retention, approval history, payload expansion, and shake debouncing;
+- UI-frame encoding, renderer lookup, deduplicated navigation, and turn lifecycle.
 
 ## Documentation
 
@@ -287,6 +288,8 @@ The test suite covers:
 - [Approval testing](approval-testing.md)
 - [Approval troubleshooting](approval-troubleshooting.md)
 - [Protocol](protocol.md)
+- [Application-defined UI frames](ui-frames.md)
 - [Optional Android UI fallback](android-ui-automation.md)
 - [PoC migration](migration.md)
-- [Runnable example](../../examples/weather-agent/README.md)
+- [Weather desktop/Android example](../../examples/weather-agent/README.md)
+- [Native trading UI example](../../examples/trading-agent/README.md)

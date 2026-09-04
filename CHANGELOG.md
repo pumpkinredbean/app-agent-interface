@@ -1,8 +1,10 @@
 # Changelog
 
-All notable changes will be documented in this file. The project follows [Semantic Versioning](https://semver.org/) once public artifacts are released.
+All notable changes will be documented in this file. Public artifacts follow [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
+
+## 0.4.0 - 2026-09-04
 
 - Added the framework-neutral `app-agent-ui` frame contract, model/UI result
   separation, tag-and-parameter navigation, and turn-scoped lifecycle.

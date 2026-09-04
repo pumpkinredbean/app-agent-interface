@@ -1,8 +1,10 @@
 # TypeScript packages
 
-The repository uses one npm workspace and publishes ESM-only packages for Node.js 22 or newer. TypeScript source is compiled with project references, strict checking, declaration maps, and `NodeNext` module resolution.
+The repository uses one npm workspace and builds publication-ready ESM-only packages for Node.js 22 or newer. TypeScript source is compiled with project references, strict checking, declaration maps, and `NodeNext` module resolution.
 
-## Public packages
+Both TypeScript packages currently use version `0.1.0` and are consumed from this repository workspace. Automated npm publication is not configured, and Kotlin `sdk-v*` tags do not publish npm packages.
+
+## Reusable packages
 
 ### `@pumpkinredbean/app-agent-client`
 

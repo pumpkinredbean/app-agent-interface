@@ -81,6 +81,8 @@ debugImplementation "io.github.pumpkinredbean:app-agent-inspector:0.4.0-SNAPSHOT
 releaseImplementation "io.github.pumpkinredbean:app-agent-inspector-noop:0.4.0-SNAPSHOT"
 ```
 
+The snapshot coordinates match the repository's current local development version. Gradle substitutes them from the composite build; consumers installing from GitHub Packages should use the latest released version documented in the [Kotlin SDK guide](../../docs/sdk/kotlin-sdk.md).
+
 [`AgentToolServer.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolServer.java) shows Java interoperability. [`AgentToolService.java`](android/app/src/main/java/io/github/pumpkinredbean/appagent/example/weather/AgentToolService.java) installs the same Inspector API from common source code; debug builds get the real audit UI, while release builds resolve the no-op artifact. The SDK owns registration, portable input validation, FIFO approval coordination, the optional Compose approval host, protocol encoding, and loopback HTTP transport. The application owns Open-Meteo mapping, local alert state, service lifecycle, and notification navigation.
 
 ## Run Android
@@ -187,6 +189,8 @@ npm run demo -- --provider=copilot --model=auto "Compare Seoul and Tokyo weather
 export ANTHROPIC_API_KEY=...
 npm run demo -- --provider=claude "Show Seoul's three-day forecast"
 ```
+
+Codex reasoning effort is configured with `CODEX_REASONING_EFFORT` (`none`, `minimal`, `low`, `medium`, `high`, or `xhigh`). The current sample web UI selects provider and model; it does not expose every provider-specific option.
 
 The harness gives these provider adapters no coding, shell, network, or filesystem tools. Each model step returns either final text or up to four available ToolCalls. App-defined calls use `app-agent/1`; optional `mobile_*` calls use the separate scoped driver. Both return the same normalized ToolResult envelope to the next model step. The complete turn is capped at eight model steps and twelve ToolCalls.
 

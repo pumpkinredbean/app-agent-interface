@@ -5,7 +5,7 @@
 One set of application capabilities should serve both of these callers:
 
 1. a custom agent running behind a desktop chat UI;
-2. a future in-app agent UI.
+2. an in-app agent UI.
 
 The model does not control the complete Android UI or operating system. It can call only handlers that the application explicitly registers.
 

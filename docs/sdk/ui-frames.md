@@ -237,6 +237,6 @@ The application or agent client provides:
 - the surrounding conversation UI;
 - user-facing resume and back controls.
 
-This boundary lets a desktop service agent and a future in-app agent render the same semantic frame contract without forcing either client into a shared UI framework.
+This boundary lets desktop and in-app agents render the same semantic frame contract without forcing either client into a shared UI framework.
 
 See the [native trading-agent example](../../examples/trading-agent/README.md) for live market polling that runs only while a frame is `RESUMED`, an app-owned renderer registry, conversation/context focus switching, and a device-approved local order.
