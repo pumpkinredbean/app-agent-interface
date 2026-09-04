@@ -74,11 +74,11 @@ includeBuild("../../..")
 ```
 
 ```groovy
-implementation "io.github.pumpkinredbean:app-agent-runtime:0.4.0-SNAPSHOT"
-implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.4.0-SNAPSHOT"
-implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.4.0-SNAPSHOT"
-debugImplementation "io.github.pumpkinredbean:app-agent-inspector:0.4.0-SNAPSHOT"
-releaseImplementation "io.github.pumpkinredbean:app-agent-inspector-noop:0.4.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-runtime:0.5.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-transport-loopback:0.5.0-SNAPSHOT"
+implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.5.0-SNAPSHOT"
+debugImplementation "io.github.pumpkinredbean:app-agent-inspector:0.5.0-SNAPSHOT"
+releaseImplementation "io.github.pumpkinredbean:app-agent-inspector-noop:0.5.0-SNAPSHOT"
 ```
 
 The snapshot coordinates match the repository's current local development version. Gradle substitutes them from the composite build; consumers installing from GitHub Packages should use the latest released version documented in the [Kotlin SDK guide](../../docs/sdk/kotlin-sdk.md).

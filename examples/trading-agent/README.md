@@ -76,7 +76,7 @@ includeBuild("../../..")
 ```
 
 Its application dependencies are the runtime, framework-neutral UI contract,
-and Compose adapter. The `0.4.0-SNAPSHOT` coordinates are substituted by the
+and Compose adapter. The `0.5.0-SNAPSHOT` coordinates are substituted by the
 composite build; an external consumer should use the latest release in the
 [Kotlin SDK guide](../../docs/sdk/kotlin-sdk.md).
 

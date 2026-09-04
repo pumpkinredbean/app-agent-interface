@@ -32,9 +32,9 @@ android {
 }
 
 dependencies {
-    implementation "io.github.pumpkinredbean:app-agent-runtime:0.4.0-SNAPSHOT"
-    implementation "io.github.pumpkinredbean:app-agent-ui:0.4.0-SNAPSHOT"
-    implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.4.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-runtime:0.5.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-ui:0.5.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.5.0-SNAPSHOT"
 
     implementation "androidx.activity:activity-compose:1.10.1"
     implementation "androidx.compose.animation:animation:1.8.3"

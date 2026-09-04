@@ -15,7 +15,7 @@ This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or
 | `app-agent-inspector` | Optional debug audit history, payload viewer, and foreground shake entry point |
 | `app-agent-inspector-noop` | API-compatible release implementation that performs no work |
 
-The latest published Kotlin version is `0.4.0`. The repository currently defaults local composite builds to `0.4.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
+The latest published Kotlin version is `0.4.0`. The repository currently defaults local composite builds to `0.5.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
 
 ## Tool specification
 
