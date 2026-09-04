@@ -4,6 +4,10 @@ All notable changes will be documented in this file. Public artifacts follow [Se
 
 ## Unreleased
 
+- Standardized public documentation and sample copy on English, replaced ASCII
+  architecture and flow sketches with Mermaid diagrams, and added CI checks
+  that prevent those conventions from regressing.
+
 ## 0.4.0 - 2026-09-04
 
 - Added the framework-neutral `app-agent-ui` frame contract, model/UI result

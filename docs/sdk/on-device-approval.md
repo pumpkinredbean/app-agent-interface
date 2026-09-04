@@ -8,13 +8,21 @@ Use `ToolApproval.MOBILE` when a registered tool must pause before its handler e
 
 Create one controller in the same application or dependency-injection scope as `ToolRuntime`:
 
-```text
-Application / DI scope
-  |- ToolApprovalController -- StateFlow<ToolApprovalQueueState>
-  |- ToolRuntime(approvalDecisionHandler = controller)
-  |- ToolApprovalNotificationBridge
-  `- Activity content
-       `- ToolApprovalHost(controller)
+```mermaid
+flowchart LR
+    subgraph appScope ["Application or DI scope"]
+        runtime["ToolRuntime"]
+        approvalController["ToolApprovalController"]
+        notificationBridge["ToolApprovalNotificationBridge"]
+        activityContent["Activity content"]
+        approvalHost["ToolApprovalHost"]
+    end
+
+    runtime -->|"approval request"| approvalController
+    approvalController -->|"decision"| runtime
+    approvalController -->|"queue StateFlow"| approvalHost
+    activityContent --> approvalHost
+    approvalController -->|"aggregate queue state"| notificationBridge
 ```
 
 For each `MOBILE` tool call:

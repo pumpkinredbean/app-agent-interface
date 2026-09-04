@@ -29,6 +29,11 @@ android {
             minifyEnabled false
         }
     }
+
+    // The Compose artifact packages an optional notification bridge that this sample never installs.
+    lint {
+        disable "NotificationPermission"
+    }
 }
 
 dependencies {

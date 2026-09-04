@@ -47,7 +47,7 @@ class TradingAgentController : ViewModel() {
                     id = nextMessageId++,
                     role = MessageRole.ASSISTANT,
                     label = "Market agent",
-                    text = "앱의 시장 정보와 로컬 포트폴리오가 연결됐어요. 질문하거나 현재 UI에서 바로 탐색해보세요.",
+                    text = "Market data and the local portfolio are connected. Ask a question or explore directly from the current interface.",
                 ),
             ),
         ),
@@ -171,7 +171,7 @@ class TradingAgentController : ViewModel() {
 
     private fun acceptToolResult(result: ToolResult, plan: AgentPlan) {
         if (!result.ok) {
-            val text = result.error?.message ?: "요청을 완료하지 못했어요."
+            val text = result.error?.message ?: "The request could not be completed."
             state = state.copy(
                 executing = false,
                 progress = null,
@@ -201,15 +201,15 @@ class TradingAgentController : ViewModel() {
             "get_portfolio_return" -> {
                 val amount = value.getValue("amount").jsonPrimitive.double
                 val percent = value.getValue("percent").jsonPrimitive.double
-                "현재 로컬 포트폴리오의 오늘 수익은 ${signedMoney(amount)} USDT, ${signedPercent(percent)}예요. 이건 사실 조회라 새 UI는 열지 않았어요."
+                "Today's return for the local portfolio is ${signedMoney(amount)} USDT, ${signedPercent(percent)}. This was a factual lookup, so no new interface was opened."
             }
             "get_market_quote" -> {
                 val symbol = value.getValue("symbol").jsonPrimitive.content
                 val price = value.getValue("price").jsonPrimitive.double
                 val change = value.getValue("changePercent").jsonPrimitive.double
-                "$symbol 현재가는 ${money(price)} USDT이고 24시간 변동률은 ${signedPercent(change)}예요."
+                "$symbol is currently ${money(price)} USDT with a 24-hour change of ${signedPercent(change)}."
             }
-            "get_market_symbols" -> "현재 BTC, ETH, SOL, BNB를 탐색할 수 있어요. 보고 싶은 종목 이름을 누르거나 말해보세요."
+            "get_market_symbols" -> "You can currently explore BTC, ETH, SOL, and BNB. Select or name the asset you want to inspect."
             else -> fallback
         }
     }

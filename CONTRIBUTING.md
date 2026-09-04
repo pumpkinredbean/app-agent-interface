@@ -10,6 +10,13 @@ App Agent Interface is experimental and welcomes focused fixes, documentation im
 - Do not add unrestricted device control or bind Android services to a public network interface.
 - Do not commit credentials, `.env` files, Android keystores, APKs, build outputs, or model-provider session data.
 
+## Documentation conventions
+
+- Write public documentation, sample UI copy, prompts, and test fixtures in English.
+- Use fenced Mermaid diagrams for architecture, execution flows, sequences, and state transitions. Do not use ASCII-art diagrams.
+- Use Markdown tables or lists for inventories and exact value mappings that are not diagrams.
+- Run `npm run docs:check` to verify local links, language, diagram fences, release versions, and example dependency versions.
+
 ## Development requirements
 
 - JDK 17 or newer
@@ -34,7 +41,7 @@ cd examples/weather-agent/android
 ./gradlew :app:assembleDebug :app:assembleRelease
 
 cd ../../trading-agent/android
-./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:lintDebug
 ```
 
 The UiAutomator2 companion can be built from the repository root with:

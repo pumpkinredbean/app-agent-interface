@@ -4,13 +4,23 @@
 
 The application dependency-injection container should own a singleton `ToolRuntime`. The foreground service and in-app agent then share the same instance.
 
-```text
-Application / DI
-  |- ToolApprovalController
-  `- ToolRuntime
-       |- registered application handlers
-       |- Foreground Service -> LoopbackToolServer
-       `- In-app Agent       -> direct execute()
+```mermaid
+flowchart LR
+    subgraph appScope ["Application or DI scope"]
+        approvalController["ToolApprovalController"]
+        runtime["ToolRuntime"]
+        handlers["Registered application handlers"]
+        foregroundService["Foreground service"]
+        loopbackServer["LoopbackToolServer"]
+        inAppAgent["In-app agent"]
+    end
+
+    foregroundService --> loopbackServer
+    loopbackServer -->|"app-agent/1"| runtime
+    inAppAgent -->|"direct execute"| runtime
+    runtime -->|"when required"| approvalController
+    approvalController -->|"decision"| runtime
+    runtime --> handlers
 ```
 
 A handler captures an application repository in its closure:

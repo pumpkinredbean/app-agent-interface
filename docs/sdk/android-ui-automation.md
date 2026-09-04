@@ -6,15 +6,25 @@ This is not MCP, and the UiAutomator tools are not predefined business-domain to
 
 ## Architecture
 
-```text
-                         application-defined tools
-Desktop agent harness ------------------------------> App ToolRuntime
-        |
-        | harness-owned mobile_* tools
-        v
-semantic projector <--- raw hierarchy <--- AndroidX UiAutomator2 driver
-        |
-        `--- screenshot only when the hierarchy is insufficient
+```mermaid
+flowchart LR
+    subgraph desktop ["Desktop agent harness"]
+        agentHarness["Agent harness"]
+        mobileTools["Harness-owned mobile tools"]
+        semanticProjector["Semantic projector"]
+    end
+
+    subgraph android ["Android device"]
+        appRuntime["Application ToolRuntime"]
+        uiDriver["AndroidX UiAutomator2 driver"]
+    end
+
+    agentHarness -->|"application-defined tools"| appRuntime
+    agentHarness -->|"UI fallback"| mobileTools
+    mobileTools -->|"capture request"| uiDriver
+    uiDriver -->|"raw hierarchy"| semanticProjector
+    semanticProjector -->|"content and controls"| mobileTools
+    uiDriver -.->|"screenshot when hierarchy is insufficient"| mobileTools
 ```
 
 The instrumentation driver is started with one trusted target application ID. The application ID is not a model argument. Every input action verifies that the target application is still foregrounded.
@@ -123,10 +133,10 @@ npm run ui
 
 Use `--serial=<adb-serial>` or `ANDROID_SERIAL` when multiple devices are attached. The default ADB forwards are:
 
-```text
-127.0.0.1:18765 -> target app ToolRuntime :8765
-127.0.0.1:18766 -> UiAutomator2 driver   :8766
-```
+| Desktop endpoint | Device endpoint |
+|---|---|
+| `127.0.0.1:18765` | Target application `ToolRuntime` on `127.0.0.1:8765` |
+| `127.0.0.1:18766` | UiAutomator2 driver on `127.0.0.1:8766` |
 
 Run `npm run ui:driver:status` to inspect the current target/foreground package and `npm run ui:driver:stop` to stop the companion.
 

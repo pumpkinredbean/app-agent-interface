@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ignoredDirectories = new Set([".git", ".gradle", "build", "dist", "node_modules"]);
+const publicTextFilePattern = /\.(?:css|gradle|html|java|js|json|kt|kts|md|mjs|properties|sh|toml|ts|tsx|xml|ya?ml)$/;
 const failures = [];
 
 function walk(directory, predicate) {
@@ -26,6 +27,15 @@ function fail(message) {
   failures.push(message);
 }
 
+for (const source of walk(root, (path) => publicTextFilePattern.test(path))) {
+  const contents = text(source);
+  const hangul = /[\uac00-\ud7a3]/u.exec(contents);
+  if (hangul) {
+    const line = contents.slice(0, hangul.index).split("\n").length;
+    fail(`${relative(root, source)}:${line} contains Hangul; public source and examples must use English`);
+  }
+}
+
 for (const markdown of walk(root, (path) => path.endsWith(".md"))) {
   const contents = text(markdown);
   const links = contents.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g);
@@ -38,6 +48,37 @@ for (const markdown of walk(root, (path) => path.endsWith(".md"))) {
     if (!existsSync(destination)) {
       const line = contents.slice(0, match.index).split("\n").length;
       fail(`${relative(root, markdown)}:${line} links to missing ${target}`);
+    }
+  }
+
+  for (const match of contents.matchAll(/^```([^\n]*)\n([\s\S]*?)^```\s*$/gm)) {
+    const language = match[1].trim().toLowerCase();
+    const body = match[2];
+    const openingLine = contents.slice(0, match.index).split("\n").length;
+
+    if (["", "text", "txt", "plaintext"].includes(language)) {
+      const diagramLine = body
+        .split("\n")
+        .findIndex((line) => /[┌┐└┘├┤┬┴─│→←↓↑]|--?>|<--?|^\s*(?:\||`|\+)[-`+|]/u.test(line));
+      if (diagramLine >= 0) {
+        fail(`${relative(root, markdown)}:${openingLine + diagramLine + 1} contains an ASCII diagram; use a Mermaid fence`);
+      }
+    }
+
+    if (language === "mermaid") {
+      const firstLine = body.trimStart().split("\n", 1)[0].trim();
+      if (!/^(?:flowchart\s+(?:LR|RL|TB|TD)|sequenceDiagram|stateDiagram-v2|erDiagram|gantt)\b/.test(firstLine)) {
+        fail(`${relative(root, markdown)}:${openingLine} has an unsupported Mermaid diagram type`);
+      }
+      if (/\\n/.test(body)) {
+        fail(`${relative(root, markdown)}:${openingLine} uses a literal \\n in Mermaid; use separate labels or nodes`);
+      }
+      if (/<\/?[A-Za-z][^>]*>/.test(body)) {
+        fail(`${relative(root, markdown)}:${openingLine} contains HTML in Mermaid labels`);
+      }
+      if (/\p{Extended_Pictographic}/u.test(body)) {
+        fail(`${relative(root, markdown)}:${openingLine} contains an emoji in Mermaid source`);
+      }
     }
   }
 }

@@ -10,14 +10,13 @@ Both TypeScript packages currently use version `0.1.0` and are consumed from thi
 
 The protocol client owns the reusable desktop-side contract:
 
-```text
-packages/app-agent-client/src/
-  contracts.ts       JSON values and app-agent/1 envelope types
-  decode.ts          unknown-to-protocol runtime decoders
-  errors.ts          transport and ToolResult error types
-  http-client.ts     loopback or relay HTTP client
-  index.ts           reviewed public exports
-```
+| Path | Responsibility |
+|---|---|
+| `contracts.ts` | JSON values and `app-agent/1` envelope types |
+| `decode.ts` | Unknown-to-protocol runtime decoders |
+| `errors.ts` | Transport and `ToolResult` error types |
+| `http-client.ts` | Loopback or relay HTTP client |
+| `index.ts` | Reviewed public exports |
 
 Network responses enter the package as `unknown` and are decoded before being returned. The package does not read environment variables. Consumers pass connection settings explicitly and can inject `fetch` and an ID factory for tests or alternative runtimes.
 
@@ -39,14 +38,13 @@ Tool names and inputs stay application-defined. TypeScript does not attempt to i
 
 The optional UI package depends on the protocol client and keeps its three responsibilities separate:
 
-```text
-packages/app-agent-android-ui/src/
-  bridge/             typed UiAutomator2 HTTP boundary
-  hierarchy/          XML parsing and flat semantic projection
-  tools/              ToolSpecs, snapshots, and action orchestration
-  errors.ts
-  index.ts             public exports only
-```
+| Path | Responsibility |
+|---|---|
+| `bridge/` | Typed UiAutomator2 HTTP boundary |
+| `hierarchy/` | XML parsing and flat semantic projection |
+| `tools/` | ToolSpecs, snapshots, and action orchestration |
+| `errors.ts` | Android UI transport and execution errors |
+| `index.ts` | Reviewed public exports |
 
 The bridge validates raw driver responses. The hierarchy layer is application-neutral and never applies sample-specific selectors. The tools layer owns short-lived snapshot IDs, stale-screen checks, and model-facing `mobile_*` ToolCalls.
 
@@ -54,13 +52,12 @@ The bridge validates raw driver responses. The hierarchy layer is application-ne
 
 The Weather desktop project demonstrates one agent implementation but is deliberately not a public agent framework:
 
-```text
-examples/weather-agent/desktop/src/
-  agent/              event-driven loop, policy, redaction, client composition
-  providers/          Codex, Copilot, and Claude adapters
-  server/             local chat API and session state
-  cli/                demo commands and terminal presentation
-```
+| Path | Responsibility |
+|---|---|
+| `agent/` | Event-driven loop, policy, redaction, and client composition |
+| `providers/` | Codex, Copilot, and Claude adapters |
+| `server/` | Local chat API and session state |
+| `cli/` | Demo commands and terminal presentation |
 
 Provider SDK types are contained behind the local `AgentProvider` interface. Provider adapters, prompts, chat sessions, and presentation logic remain in the example until a second independent application proves a reusable abstraction.
 

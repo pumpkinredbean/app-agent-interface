@@ -6,34 +6,71 @@ Weather is only the sample domain. Tool names, descriptions, schemas, handlers, 
 
 ## What the example proves
 
-```text
-Desktop Web Chat UI (127.0.0.1:4317)
-  |
-  v
-Node.js custom agent harness
-  |- provider adapters
-  |    |- Codex: Vercel AI SDK -> local Codex subscription provider
-  |    |- Copilot: Vercel AI SDK -> Copilot SDK/CLI subscription provider
-  |    `- Claude: official Claude Agent SDK adapter
-  |- optional mobile_* tools -> semantic projector -> UiAutomator2 companion :18766
-  `- app-agent/1 -> Mac :18765 -> adb forward -> Kotlin ToolRuntime
-       |- Open-Meteo read handlers
-       `- app-owned alert handlers -> SDK approval queue -> local persistence
+```mermaid
+flowchart LR
+    subgraph clients ["Agent clients"]
+        webChat["Desktop web chat on 127.0.0.1:4317"]
+        inAppCaller["Android in-app caller"]
+    end
 
-Android in-app button -> the same ToolRuntime execution path
+    subgraph harness ["Node.js custom agent harness"]
+        agentHarness["Agent loop"]
+        providerAdapters["Provider adapters"]
+        mobileTools["Optional mobile tools and semantic projector"]
+    end
+
+    subgraph providers ["Model providers"]
+        codex["Codex through Vercel AI SDK"]
+        copilot["Copilot through Vercel AI SDK"]
+        claude["Claude Agent SDK"]
+    end
+
+    subgraph android ["Android application and companion"]
+        adbForward["ADB-forwarded loopback on 127.0.0.1:18765"]
+        runtime["Kotlin ToolRuntime"]
+        readHandlers["Open-Meteo read handlers"]
+        approvalQueue["SDK approval queue"]
+        alertHandlers["Application-owned alert handlers"]
+        localPersistence["Local alert persistence"]
+        uiDriver["UiAutomator2 companion on 127.0.0.1:18766"]
+    end
+
+    subgraph external ["External data"]
+        openMeteo["Open-Meteo APIs"]
+    end
+
+    webChat --> agentHarness
+    inAppCaller -->|"direct execute"| runtime
+    agentHarness --> providerAdapters
+    providerAdapters --> codex
+    providerAdapters --> copilot
+    providerAdapters --> claude
+    agentHarness -->|"app-agent/1"| adbForward
+    adbForward --> runtime
+    runtime --> readHandlers
+    readHandlers -.->|"weather and geocoding"| openMeteo
+    runtime -->|"write tools"| approvalQueue
+    approvalQueue -->|"approved"| alertHandlers
+    alertHandlers --> localPersistence
+    agentHarness -.->|"optional UI fallback"| mobileTools
+    mobileTools --> uiDriver
 ```
 
 The provider receives the capability manifest, conversation history, and ToolResults from the current agent turn. It receives neither the Android endpoint nor application credentials. On every model step it may answer directly or request one or more tools. The desktop harness validates every requested tool and its arguments before sending normalized ToolCalls to Android; Android validates again at the execution boundary.
 
 The harness is an event-driven agent loop, not a fixed pipeline:
 
-```text
-user message
-  -> model step
-       |- final text --------------------------> done
-       `- zero or more independent ToolCalls
-            -> Android ToolResults
-            -> next model step ----------------> ...
+```mermaid
+flowchart TD
+    userMessage(["User message"]) --> modelStep["Run one model step"]
+    modelStep --> responseType{"Provider response"}
+    responseType -->|"final text"| completeTurn(["Complete turn"])
+    responseType -->|"one or more ToolCalls"| validateCalls["Validate names and arguments"]
+    validateCalls --> androidExecution["Execute calls on Android"]
+    androidExecution --> collectResults["Collect ToolResults"]
+    collectResults --> safetyLimit{"Safety limit reached?"}
+    safetyLimit -->|"no"| modelStep
+    safetyLimit -->|"yes"| stopTurn(["Stop the turn"])
 ```
 
 The loop allows a direct response with no mobile execution, multiple ToolCalls, and additional model steps after results. It stops after eight model steps or twelve ToolCalls to prevent runaway execution.

@@ -40,10 +40,17 @@ approved `submit_order` action.
 
 ## Interaction model
 
-```text
-prompt -> DemoAgentPlanner -> ToolRuntime -> plain JSON or UiToolOutput
-                                      UiToolOutput -> UiFrameNavigator -> app renderer
-frame action ------------------------> ToolRuntime ----------------------^
+```mermaid
+flowchart LR
+    userPrompt(["User prompt"]) --> planner["DemoAgentPlanner"]
+    planner --> runtime["ToolRuntime"]
+    runtime --> resultType{"Result type"}
+    resultType -->|"plain JSON"| modelResponse["Conversation response"]
+    resultType -->|"UiToolOutput"| splitOutput["Split model output and UI frame"]
+    splitOutput --> modelResponse
+    splitOutput --> navigator["UiFrameNavigator"]
+    navigator --> frameRenderer["Application renderer"]
+    frameRenderer -->|"frame action"| runtime
 ```
 
 - The conversation remains one session; a context frame appears above it.
@@ -95,11 +102,11 @@ may use `/opt/homebrew/share/android-commandlinetools`.
 
 Try prompts such as:
 
-- `지금 수익률 확인해줘` — factual `get_*` result; no new UI frame
-- `비트코인 상세 보여줘` — live, turn-scoped market frame
-- `포트폴리오 보여줘`
-- `1,000 USDT를 추가한다면 비교해줘`
-- `BTC 500 USDT 매수 준비해줘`
+- `What is my return today?` — factual `get_*` result; no new UI frame
+- `Show Bitcoin details` — live, turn-scoped market frame
+- `Show my portfolio`
+- `Compare adding 1,000 USDT`
+- `Prepare an order to buy 500 USDT of BTC`
 
 The order remains local. The secure keypad value stays inside the approval UI, and only the final approval boolean reaches the tool runtime.
 

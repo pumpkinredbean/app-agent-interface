@@ -287,7 +287,7 @@ private fun ConversationTimeline(
         }
         item {
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("지금 수익률 확인해줘", "비트코인 상세 보여줘", "1,000 USDT 추가 비교해줘").forEach { suggestion ->
+                listOf("What is my return today?", "Show Bitcoin details", "Compare adding 1,000 USDT").forEach { suggestion ->
                     Box(Modifier.clip(RoundedCornerShape(12.dp)).background(colors.raised).border(1.dp, colors.line, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 9.dp)) {
                         MarketText(suggestion, color = colors.textSoft, size = 12)
                     }

@@ -9,14 +9,14 @@ class DemoAgentPlannerTest {
 
     @Test
     fun factualReturnUsesGetWithoutOpeningUi() {
-        val plan = planner.plan("지금 수익률 확인해줘", currentSymbol = "BTC")
+        val plan = planner.plan("What is my return today?", currentSymbol = "BTC")
 
         assertEquals("get_portfolio_return", plan.tool)
     }
 
     @Test
     fun explicitAssetViewPreservesRequestedSymbol() {
-        val plan = planner.plan("비트코인 상세 보여줘", currentSymbol = "BNB")
+        val plan = planner.plan("Show Bitcoin details", currentSymbol = "BNB")
 
         assertEquals("visualize_market_asset", plan.tool)
         assertEquals("BTC", plan.input["symbol"].toString().trim('"'))

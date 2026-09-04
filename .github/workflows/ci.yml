@@ -89,7 +89,7 @@ jobs:
 
       - name: Build native trading example
         working-directory: examples/trading-agent/android
-        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --no-daemon
+        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:lintDebug --no-daemon
 
       - name: Build UiAutomator2 companion
         run: >-

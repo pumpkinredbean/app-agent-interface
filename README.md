@@ -23,22 +23,21 @@ Current releases: Kotlin/Maven `0.4.0`; TypeScript packages are workspace source
 
 ## Repository layout
 
-```text
-protocol/                            Canonical, language-neutral app-agent/1 JSON Schema
-packages/
-  app-agent-runtime/                 Kotlin registry, validation, approval, and execution
-  app-agent-transport-loopback/      Kotlin loopback HTTP transport for Android/JVM and ADB
-  app-agent-ui/                      Framework-neutral UI frames, navigation, and lifecycle
-  app-agent-ui-compose/              Optional Compose frame host, approval UI, and notification
-  app-agent-inspector/               Debug tool-call audit UI and foreground shake entry point
-  app-agent-inspector-noop/          API-compatible release no-op for the Inspector
-  app-agent-client/                  Typed TypeScript protocol client
-  app-agent-android-ui/              Typed TypeScript Android UI fallback tools
-drivers/android-uiautomator2/        Optional generic instrumentation companion
-docs/sdk/                            Architecture and integration documentation
-examples/weather-agent/              Android weather and desktop agent example
-examples/trading-agent/              Native Android UI-frame and local-order example
-```
+| Path | Responsibility |
+|---|---|
+| `protocol/` | Canonical, language-neutral `app-agent/1` JSON Schema |
+| `packages/app-agent-runtime/` | Kotlin registry, validation, approval, and execution |
+| `packages/app-agent-transport-loopback/` | Kotlin loopback HTTP transport for Android/JVM and ADB |
+| `packages/app-agent-ui/` | Framework-neutral UI frames, navigation, and lifecycle |
+| `packages/app-agent-ui-compose/` | Optional Compose frame host, approval UI, and notification |
+| `packages/app-agent-inspector/` | Debug tool-call audit UI and foreground shake entry point |
+| `packages/app-agent-inspector-noop/` | API-compatible release no-op for the Inspector |
+| `packages/app-agent-client/` | Typed TypeScript protocol client |
+| `packages/app-agent-android-ui/` | Typed TypeScript Android UI fallback tools |
+| `drivers/android-uiautomator2/` | Optional generic instrumentation companion |
+| `docs/sdk/` | Architecture and integration documentation |
+| `examples/weather-agent/` | Android weather and desktop agent example |
+| `examples/trading-agent/` | Native Android UI-frame and local-order example |
 
 ## Model-visible contract
 

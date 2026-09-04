@@ -9,32 +9,64 @@ One set of application capabilities should serve both of these callers:
 
 The model does not control the complete Android UI or operating system. It can call only handlers that the application explicitly registers.
 
-```text
-Desktop Chat UI
-      |
-      v
-Custom Agent Loop -- Provider adapter -- Codex / Copilot / Claude
-      |
-      | app-agent/1
-      v
-Transport (ADB loopback now, authenticated relay later)
-      |
-      v
-ToolRuntime -- input validation -- ToolApprovalController -- app handler
-     |                                |                     |
-     v                                v                     v
-audit events                  app-owned approval UI   signed-in app services
-     |
-     v
-debug Inspector / application audit sink
+### Connection paths
 
-ToolResult.output
-      |
-      +-- ordinary JSON / modelOutput --> next model step
-      |
-      +-- optional UiFrame --> frame navigator --> app-owned renderer
+```mermaid
+flowchart LR
+    subgraph desktop ["Desktop agent"]
+        desktopChat["Chat UI"]
+        agentLoop["Custom agent loop"]
+        providerAdapter["Provider adapter"]
+        modelProvider["Codex, Copilot, or Claude"]
+    end
 
-In-app Agent UI ----------------- direct ToolRuntime.execute()
+    subgraph connection ["Connection adapters"]
+        loopback["ADB-forwarded loopback"]
+        relay["Authenticated relay (future)"]
+    end
+
+    subgraph android ["Android application"]
+        inAppAgent["In-app agent UI"]
+        runtime["ToolRuntime"]
+        appHandler["Application handler"]
+        appServices["Signed-in application services"]
+    end
+
+    desktopChat --> agentLoop
+    agentLoop <--> providerAdapter
+    providerAdapter <--> modelProvider
+    agentLoop -->|"app-agent/1"| loopback
+    agentLoop -.->|"future app-agent/1"| relay
+    loopback --> runtime
+    relay -.-> runtime
+    inAppAgent -->|"direct execute"| runtime
+    runtime --> appHandler
+    appHandler --> appServices
+```
+
+### Runtime execution and result routing
+
+```mermaid
+flowchart TD
+    toolCall(["ToolCall"]) --> runtime["ToolRuntime"]
+    runtime --> registered{"Tool registered?"}
+    registered -->|"no"| failedResult["Normalized failed ToolResult"]
+    registered -->|"yes"| validateInput["Validate input schema"]
+    validateInput --> validInput{"Input valid?"}
+    validInput -->|"no"| failedResult
+    validInput -->|"yes"| approvalRequired{"Mobile approval required?"}
+    approvalRequired -->|"no"| appHandler["Execute application handler"]
+    approvalRequired -->|"yes"| approval["Request on-device approval"]
+    approval --> approved{"Approved?"}
+    approved -->|"no"| failedResult
+    approved -->|"yes"| appHandler
+    appHandler --> successResult["Successful ToolResult"]
+    successResult --> outputType{"Output type"}
+    outputType -->|"ordinary JSON or model output"| nextModelStep["Next model step"]
+    outputType -->|"optional UI frame"| frameNavigator["UiFrameNavigator"]
+    frameNavigator --> appRenderer["Application-owned renderer"]
+    runtime -.-> auditEvents["Audit events"]
+    auditEvents --> auditSink["Debug Inspector or application audit sink"]
 ```
 
 ## Layer responsibilities
