@@ -5,7 +5,7 @@ Provider-neutral Kotlin and TypeScript SDKs for turning an existing application 
 [![CI](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml/badge.svg)](https://github.com/pumpkinredbean/app-agent-interface/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Applications define their own tools. The Kotlin runtime registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. The TypeScript client discovers and calls them from desktop or other agent harnesses. The currently shipped transport uses ADB-forwarded loopback; authenticated remote relay transport remains a separate future adapter. Optional Android UI automation is an app-scoped fallback rather than the primary interface.
+Applications define their own tools and UI renderers. The Kotlin runtime registers, validates, approves, and executes those tools through the custom `app-agent/1` protocol. Optional UI modules let a tool pair concise model-readable output with an application-defined interface. The TypeScript client discovers and calls the same capabilities from desktop or other agent harnesses. The currently shipped transport uses ADB-forwarded loopback; authenticated remote relay transport remains a separate future adapter. Optional Android UI automation is an app-scoped fallback rather than the primary interface.
 
 > Status: experimental. The public API and wire protocol may change before `1.0.0`.
 
@@ -20,6 +20,33 @@ Current releases: Kotlin/Maven `0.4.0`; TypeScript packages are workspace source
 - Application credentials remain inside the mobile handler and are never sent to the model.
 - Approval is runtime policy, not part of the model-visible tool definition.
 - An optional harness-owned UiAutomator2 companion provides app-scoped screen interaction when no semantic application tool exists.
+
+## One application interface, two agent surfaces
+
+The same application-owned capabilities can serve a desktop agent and an in-app agent. The application remains responsible for business behavior, authenticated services, and every rendered interface.
+
+```mermaid
+flowchart LR
+    desktop["Desktop agent and chat UI"] --> client["TypeScript client"]
+    client --> loopback["ADB-forwarded loopback"]
+    loopback --> runtime["Application ToolRuntime"]
+    inApp["In-app service agent"] --> runtime
+    runtime --> tools["Application-defined tools"]
+    tools --> services["Authenticated application services"]
+    tools --> frames["Optional application-defined UI frames"]
+    frames --> desktop
+    frames --> inApp
+```
+
+Choose only the layers an integration needs:
+
+| Goal | Start with |
+|---|---|
+| Expose safe application capabilities | `app-agent-runtime` and application-defined `ToolSpec` handlers |
+| Connect a desktop agent | `app-agent-client` and `app-agent-transport-loopback` |
+| Return application-owned dynamic UI | `app-agent-ui` and, for Compose, `app-agent-ui-compose` |
+| Automate an existing screen as a fallback | `app-agent-android-ui` and the UiAutomator2 companion |
+| Inspect calls and approvals during development | `app-agent-inspector` with the release no-op counterpart |
 
 ## Repository layout
 

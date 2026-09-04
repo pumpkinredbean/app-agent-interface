@@ -34,6 +34,19 @@ get balance           # Spaces are not allowed
 doEverything          # The scope is ambiguous
 ```
 
+### Distinguish factual results from interfaces
+
+Tool names remain application-defined, but a consistent verb helps the model distinguish a data lookup from an intentional interface transition.
+
+| Verb | Expected behavior |
+|---|---|
+| `get_*` | Return concise model-readable data without opening a UI frame |
+| `visualize_*` | Return an application-defined UI frame when the user asks to view or explore something |
+| `prepare_*` | Build a non-executing review or draft, which may include a UI frame |
+| `create_*`, `submit_*`, `update_*`, `cancel_*` | Perform the stated mutation after application validation and any required approval |
+
+For example, `get_project_status` can answer a factual question inside the conversation, while `visualize_project_status` can open an interactive status view. Do not use a visual tool merely because one exists. The tool description must still explain the distinction because a prefix is a naming convention, not execution policy.
+
 ## Description
 
 Do not add separate `useWhen` or `avoidWhen` fields. Write one natural-language `description` that explains:
