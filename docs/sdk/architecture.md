@@ -28,6 +28,12 @@ audit events                  app-owned approval UI   signed-in app services
      v
 debug Inspector / application audit sink
 
+ToolResult.output
+      |
+      +-- ordinary JSON / modelOutput --> next model step
+      |
+      +-- optional UiFrame --> frame navigator --> app-owned renderer
+
 In-app Agent UI ----------------- direct ToolRuntime.execute()
 ```
 
@@ -70,6 +76,23 @@ Transport carries `tools.list`, `tool.call`, and `tool.result` messages. It does
 
 Remote connectivity should be implemented as a separate authenticated WebSocket or relay adapter on top of the same application runtime.
 
+### Optional application UI
+
+`app-agent-ui` lets a handler pair concise model-readable output with an
+application-defined `UiFrame(tag, params, payload)`. The value is encoded inside
+the existing unrestricted `ToolResult.output`; it does not add fields to
+`ToolSpec` or change `app-agent/1`.
+
+The host returns only `modelOutput` to the model and routes the frame through
+`UiFrameNavigator` and its own tag-to-renderer registry. `tag + params` is the
+navigation identity, while changing live values belong in `payload`.
+
+Starting a new user turn pauses the current frame. Navigating, going back,
+explicitly resuming, and closing a session produce `RESUMED`, `PAUSED`, and
+`DISPOSED` events that renderers use to manage live resources. The optional
+Compose adapter owns no domain UI or second navigation stack. See
+[Application-defined UI frames](ui-frames.md).
+
 ### Agent harness
 
 The agent loop and chat UI live outside the Kotlin SDK. The current Node.js example selects a provider, maps the mobile manifest to that provider's tool format, validates the selected call, and sends only the normalized ToolCall to the mobile runtime.
@@ -110,7 +133,8 @@ Fields such as `type`, `strict`, `deferLoading`, and `providerOptions` are adapt
 - The current ADB approval queue is in-memory and is never restored after Android process death.
 - Loopback binding limits network exposure but does not replace authentication.
 - Production sessions should use a session bearer or pairing credential.
-- Outputs should contain only the data required for the final model response, not raw internal DTOs or credentials.
+- Model outputs and UI frame payloads should contain only the data required by
+  their consumers, not raw internal DTOs or credentials.
 
 ## Non-goals
 

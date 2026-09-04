@@ -84,6 +84,10 @@ jobs:
         working-directory: examples/weather-agent/android
         run: ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon
 
+      - name: Build native trading example
+        working-directory: examples/trading-agent/android
+        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --no-daemon
+
       - name: Build UiAutomator2 companion
         run: >-
           examples/weather-agent/android/gradlew

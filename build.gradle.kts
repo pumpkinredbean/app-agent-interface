@@ -11,7 +11,7 @@ plugins {
 val sdkGroup = providers.gradleProperty("sdkGroup").getOrElse("io.github.pumpkinredbean")
 val sdkVersion = providers.gradleProperty("sdkVersion")
     .orElse(providers.environmentVariable("SDK_VERSION"))
-    .getOrElse("0.3.0-SNAPSHOT")
+    .getOrElse("0.4.0-SNAPSHOT")
 val projectUrl = "https://github.com/pumpkinredbean/app-agent-interface"
 
 require(sdkGroup.isNotBlank()) { "sdkGroup must not be blank" }

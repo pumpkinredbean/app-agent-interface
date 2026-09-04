@@ -1,0 +1,52 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+android {
+    namespace "io.github.pumpkinredbean.appagent.example.tradingv3"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "io.github.pumpkinredbean.appagent.example.tradingv3"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation "io.github.pumpkinredbean:app-agent-runtime:0.4.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-ui:0.4.0-SNAPSHOT"
+    implementation "io.github.pumpkinredbean:app-agent-ui-compose:0.4.0-SNAPSHOT"
+
+    implementation "androidx.activity:activity-compose:1.10.1"
+    implementation "androidx.compose.animation:animation:1.8.3"
+    implementation "androidx.compose.foundation:foundation:1.8.3"
+    implementation "androidx.compose.runtime:runtime:1.8.3"
+    implementation "androidx.compose.ui:ui:1.8.3"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.8.3"
+    implementation "androidx.core:core-ktx:1.16.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+
+    debugImplementation "androidx.compose.ui:ui-tooling:1.8.3"
+
+    testImplementation "junit:junit:4.13.2"
+}

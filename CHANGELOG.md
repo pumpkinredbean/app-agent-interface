@@ -4,6 +4,14 @@ All notable changes will be documented in this file. The project follows [Semant
 
 ## Unreleased
 
+- Added the framework-neutral `app-agent-ui` frame contract, model/UI result
+  separation, tag-and-parameter navigation, and turn-scoped lifecycle.
+- Added a Compose frame host and application-owned approval-content overload
+  while retaining the SDK FIFO queue and presentation timeout.
+- Added a native trading-service example with public market data fallback,
+  interactive context frames, local-only simulated orders, and an app-owned
+  secure keypad without Android device authentication.
+
 ## 0.3.0 - 2026-09-02
 
 - Added typed `ToolRuntime` audit lifecycle events with failure isolation and detachable listeners.

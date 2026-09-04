@@ -26,7 +26,8 @@ protocol/                            Canonical, language-neutral app-agent/1 JSO
 packages/
   app-agent-runtime/                 Kotlin registry, validation, approval, and execution
   app-agent-transport-loopback/      Kotlin loopback HTTP transport for Android/JVM and ADB
-  app-agent-ui-compose/              Optional approval queue UI and background notification
+  app-agent-ui/                      Framework-neutral UI frames, navigation, and lifecycle
+  app-agent-ui-compose/              Optional Compose frame host, approval UI, and notification
   app-agent-inspector/               Debug tool-call audit UI and foreground shake entry point
   app-agent-inspector-noop/          API-compatible release no-op for the Inspector
   app-agent-client/                  Typed TypeScript protocol client
@@ -53,6 +54,7 @@ Handlers, approval policy, authentication state, transport settings, and call ID
 - [Kotlin SDK](docs/sdk/kotlin-sdk.md)
 - [On-device approval](docs/sdk/on-device-approval.md)
 - [Compose approval UI](docs/sdk/compose-approval-ui.md)
+- [Application-defined UI frames](docs/sdk/ui-frames.md)
 - [Debug audit inspector](docs/sdk/debug-inspector.md)
 - [TypeScript client](packages/app-agent-client/README.md)
 - [TypeScript package architecture](docs/sdk/typescript.md)
@@ -66,14 +68,16 @@ Handlers, approval policy, authentication state, transport settings, and call ID
 - [Android UI package](packages/app-agent-android-ui/README.md)
 - [Distribution](docs/sdk/distribution.md)
 - [Weather agent example](examples/weather-agent/README.md)
+- [Native trading agent example](examples/trading-agent/README.md)
 
 ## Distribution
 
-The repository includes a GitHub Packages publishing workflow. Pushing an SDK version tag publishes the Kotlin runtime, loopback transport, approval UI, and debug Inspector pair:
+The repository includes a GitHub Packages publishing workflow. Pushing an SDK version tag publishes the Kotlin runtime, loopback transport, UI contracts, approval UI, and debug Inspector pair:
 
 ```text
 io.github.pumpkinredbean:app-agent-runtime:<version>
 io.github.pumpkinredbean:app-agent-transport-loopback:<version>
+io.github.pumpkinredbean:app-agent-ui:<version>
 io.github.pumpkinredbean:app-agent-ui-compose:<version>
 io.github.pumpkinredbean:app-agent-inspector:<version>
 io.github.pumpkinredbean:app-agent-inspector-noop:<version>

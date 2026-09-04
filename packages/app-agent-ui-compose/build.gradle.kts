@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
 }
 
-description = "Optional Jetpack Compose approval UI for App Agent Interface runtimes"
+description = "Optional Jetpack Compose approval and UI frame hosts for App Agent Interface runtimes"
 
 android {
     namespace = "io.github.pumpkinredbean.appagent.ui.compose"
@@ -51,10 +51,12 @@ kotlin {
 }
 
 dependencies {
-    api(project(":app-agent-runtime"))
+    api(project(":app-agent-ui"))
     api("androidx.compose.runtime:runtime:1.8.3")
     api("androidx.compose.ui:ui:1.8.3")
 
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.compose.animation:animation:1.8.3")
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.material3:material3:1.3.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")

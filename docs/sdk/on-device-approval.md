@@ -87,17 +87,23 @@ Write the description so a person can understand the concrete effect of allowing
 
 ### PIN, OTP, passwords, and secure keypads
 
-Secrets must never enter a model prompt, `ToolCall.input`, approval dialog, desktop trace, or tool result. A redactor is not a sufficient security boundary because it runs after the secret has already crossed into the tool-call path.
+Secrets must never enter a model prompt, `ToolCall.input`, SDK-provided
+approval details, desktop trace, frame payload, or tool result. A redactor is
+not a sufficient security boundary because it runs after the secret has already
+crossed into the tool-call path.
 
 For a secure-input operation:
 
 1. expose a semantic tool containing only non-secret intent data;
-2. obtain on-device approval for that intent;
-3. let the application handler launch or await the application's existing secure keypad, biometric, or OTP flow;
-4. accept the secret only inside that app-owned flow;
+2. present the validated intent through `ToolApprovalHost`;
+3. collect any required secret inside application-owned approval content, or
+   in a subsequent application-owned secure flow;
+4. resolve only the final approve/deny decision to `ToolApprovalController`;
 5. return a minimal, non-sensitive outcome to the agent.
 
-The SDK therefore does not currently provide a PIN/OTP redactor API or coordinate-based secure keypad entry.
+The SDK therefore does not provide a PIN/OTP redactor API or
+coordinate-based secure keypad entry. The native trading example demonstrates
+a custom keypad whose entered value never leaves its Composable.
 
 ## Android permissions are separate
 
@@ -118,4 +124,3 @@ Do not serialize and restore stale approvals. A future relay transport that supp
 - [Approval troubleshooting](approval-troubleshooting.md)
 - [Android integration](android-integration.md)
 - [Tool authoring](tool-authoring.md)
-

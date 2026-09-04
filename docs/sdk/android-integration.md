@@ -134,7 +134,11 @@ Use `ToolApprovalNotificationBridge` to direct a background user back to that ho
 
 An existing Java application can continue to use `ToolRuntime.withBlockingApproval(...)`; invoke that adapter from a runtime worker thread, never the Android main thread. New Compose integrations should prefer the detailed controller so timeout and unavailable outcomes remain distinct.
 
-PINs, OTPs, passwords, and tokens never belong in ToolCall input. Approve the non-secret action intent, then collect secure values inside the application's existing keypad, biometric, or OTP flow. See [On-device tool approval](on-device-approval.md) and [Compose approval UI](compose-approval-ui.md).
+PINs, OTPs, passwords, and tokens never belong in ToolCall input. Collect secure
+values only inside application-owned approval content or a subsequent secure
+flow, and resolve only the final decision to the runtime. See
+[On-device tool approval](on-device-approval.md) and
+[Compose approval UI](compose-approval-ui.md).
 
 ## Remote transport
 

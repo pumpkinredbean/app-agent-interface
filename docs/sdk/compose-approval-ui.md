@@ -68,6 +68,29 @@ The host:
 
 Do not collect `controller.state.current` destructively or install a host in every navigation screen. Multiple visible hosts would duplicate the same approval UI even though stale call-ID actions remain protected by the controller.
 
+## Supply application-owned approval content
+
+Keep the controller and host when a service needs an interaction beyond the
+default dialog. The custom-content overload retains FIFO ordering, foreground
+lifecycle handling, presentation-only timeout, and call-ID safety:
+
+```kotlin
+ToolApprovalHost(controller = graph.approvals) { approval ->
+    SecureOrderApproval(
+        request = approval.request,
+        queuedRequestCount = approval.queuedRequestCount,
+        remainingDecisionMillis = approval.remainingDecisionMillis,
+        onApprove = approval::approve,
+        onDeny = approval::deny,
+    )
+}
+```
+
+A secure keypad, OTP field, or password field must remain inside the
+application-owned Composable. Never add its value to `ToolCall.input`, a frame
+payload, model context, logs, or the approval callback. Only the final approve
+or deny decision reaches `ToolRuntime`.
+
 ## Add the background notification
 
 The optional bridge publishes one aggregate, privacy-safe notification only when at least one request exists and no registered approval host is visible. It never puts tool names, descriptions, arguments, or approve/deny actions in the notification.
@@ -125,4 +148,3 @@ The application owns queueing, timeout, process lifecycle, and call-ID safety in
 The dialog consumes the host `MaterialTheme`; it does not install a theme. Static copy lives in namespaced Android string resources and can be overridden by the application. The title is exposed as an accessibility heading, content scrolls when arguments are long, and actions use text labels rather than icon-only controls.
 
 The SDK intentionally does not add provider selection, model selection, connection management, chat, onboarding, or secure keypad UI. Those experiences belong to the host application or agent harness.
-

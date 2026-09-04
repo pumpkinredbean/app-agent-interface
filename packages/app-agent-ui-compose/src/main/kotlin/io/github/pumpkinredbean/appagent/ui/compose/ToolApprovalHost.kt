@@ -15,9 +15,27 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pumpkinredbean.appagent.ToolApprovalController
 import io.github.pumpkinredbean.appagent.ToolApprovalPresentationStatus
+import io.github.pumpkinredbean.appagent.ToolApprovalRequest
+
+/** Current request and actions exposed to an application-owned approval UI. */
+public class ToolApprovalHostState internal constructor(
+    public val request: ToolApprovalRequest,
+    public val queuedRequestCount: Int,
+    public val remainingDecisionMillis: Long?,
+    private val onApprove: () -> Unit,
+    private val onDeny: () -> Unit,
+) {
+    public fun approve() {
+        onApprove()
+    }
+
+    public fun deny() {
+        onDeny()
+    }
+}
 
 /**
- * Renders the controller's FIFO queue through one lifecycle-aware dialog host.
+ * Renders the controller's FIFO queue with the default SDK-owned dialog.
  *
  * Install exactly one host in the foreground approval destination. Requests
  * remain queued while the host is not resumed, and only a visibly presented
@@ -27,6 +45,31 @@ import io.github.pumpkinredbean.appagent.ToolApprovalPresentationStatus
 public fun ToolApprovalHost(
     controller: ToolApprovalController,
     modifier: Modifier = Modifier,
+) {
+    ToolApprovalHost(controller = controller) { state ->
+        ToolApprovalDialog(
+            request = state.request,
+            onApprove = state::approve,
+            onDeny = state::deny,
+            modifier = modifier,
+            queuedRequestCount = state.queuedRequestCount,
+            remainingDecisionMillis = state.remainingDecisionMillis,
+        )
+    }
+}
+
+/**
+ * Presents the FIFO queue through application-owned Compose content.
+ *
+ * Use this overload when approval needs a service-specific interaction such as
+ * a secure keypad. Secret values remain entirely inside that content; only
+ * [ToolApprovalHostState.approve] or [ToolApprovalHostState.deny] reaches the
+ * runtime.
+ */
+@Composable
+public fun ToolApprovalHost(
+    controller: ToolApprovalController,
+    content: @Composable (ToolApprovalHostState) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycle = lifecycleOwner.lifecycle
@@ -62,13 +105,14 @@ public fun ToolApprovalHost(
             }
         }
 
-        ToolApprovalDialog(
-            request = current,
-            onApprove = { controller.approve(callId) },
-            onDeny = { controller.deny(callId) },
-            modifier = modifier,
-            queuedRequestCount = state.queuedCount,
-            remainingDecisionMillis = state.remainingDecisionMillis,
+        content(
+            ToolApprovalHostState(
+                request = current,
+                queuedRequestCount = state.queuedCount,
+                remainingDecisionMillis = state.remainingDecisionMillis,
+                onApprove = { controller.approve(callId) },
+                onDeny = { controller.deny(callId) },
+            ),
         )
     }
 }

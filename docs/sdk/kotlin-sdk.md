@@ -10,11 +10,12 @@ This SDK is not an MCP implementation, an LLM provider SDK, an agent product, or
 |---|---|
 | `app-agent-runtime` | `ToolSpec`, registry, input validation, approval policy, execution, and JSON codec |
 | `app-agent-transport-loopback` | Android/JVM loopback HTTP server and ADB-forwardable endpoints |
-| `app-agent-ui-compose` | Optional FIFO approval host, Material 3 dialog, and background notification bridge |
+| `app-agent-ui` | Optional application-defined UI frame contract, navigation, lifecycle, and result codec |
+| `app-agent-ui-compose` | Optional Compose frame host, FIFO approval host, dialog, and notification bridge |
 | `app-agent-inspector` | Optional debug audit history, payload viewer, and foreground shake entry point |
 | `app-agent-inspector-noop` | API-compatible release implementation that performs no work |
 
-The default local version is `0.3.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
+The default local version is `0.4.0-SNAPSHOT`, and the JVM target is 17. Release versions are injected by the GitHub Actions workflow from a tag or manual input.
 
 ## Tool specification
 
@@ -32,7 +33,7 @@ Handlers, mobile approval, authentication state, transport settings, and call ID
 
 ## Install from GitHub Packages
 
-Pushing a tag such as `sdk-v0.3.0` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
+Pushing a tag such as `sdk-v0.4.0` publishes all Kotlin artifacts to the repository's GitHub Packages Maven registry. Add the registry and credentials to the consuming project:
 
 ```kotlin
 // consuming-project/settings.gradle.kts
@@ -58,6 +59,7 @@ dependencies {
     implementation("io.github.pumpkinredbean:app-agent-runtime:<version>")
     implementation("io.github.pumpkinredbean:app-agent-transport-loopback:<version>")
     // Optional:
+    implementation("io.github.pumpkinredbean:app-agent-ui:<version>")
     implementation("io.github.pumpkinredbean:app-agent-ui-compose:<version>")
 
     // Optional debug audit UI:
@@ -220,6 +222,15 @@ ToolApprovalHost(controller = approvals)
 The same dialog advances through later requests, shows the current countdown and later-request count, and treats dismissal as denial. Static approval labels and button text are SDK-owned Android string resources. Dynamic content is derived only from the app-registered `ToolSpec.description` and the actual `ToolCall.name` and `ToolCall.input`; the dialog does not accept model-authored explanatory prose or a separate presentation payload.
 
 Secrets such as PINs, OTPs, passwords, and access tokens must not be fields in a tool schema or ToolCall. After approving the non-secret intent, collect required secrets in the application's existing secure UI. See [On-device tool approval](on-device-approval.md) and [Compose approval UI](compose-approval-ui.md).
+
+## Application-defined UI frames
+
+Add `app-agent-ui` only when a tool intentionally produces an interface in
+addition to its concise model result. The SDK owns the frame contract,
+navigation identity, and turn lifecycle; the application owns all tags, payload
+schemas, rendering, actions, and visual design. Compose applications can use
+`UiFrameHost` from `app-agent-ui-compose`. See
+[Application-defined UI frames](ui-frames.md).
 
 ## Endpoints
 
